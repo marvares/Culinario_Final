@@ -1,0 +1,376 @@
+---
+title: "Preparación de Datos"
+subtitle: |
+  Impacto de los factores de la experiencia gastronómica
+  en la toma de decisiones del comensal
+author: "Ariana-Fernanda Valeria Vidal Tapia"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output:
+  word_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{xcolor}
+  - \usepackage{pdflscape}
+  - \usepackage{geometry}
+  - \geometry{margin=2.5cm}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyhead[L]{\small Preparación de Datos}
+  - \fancyhead[R]{\small Tesis --- Experiencia Gastronómica}
+  - \fancyfoot[C]{\thepage}
+  - \renewcommand{\headrulewidth}{0.4pt}
+lang: es
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  comment = "#>"
+)
+
+```
+
+# Librerías y configuración
+
+```{r librerias}
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(knitr)
+# library(kableExtra)  # No se necesita para Word
+```
+
+```{r configuracion}
+# IMPORTANTE: Ajusta esta ruta al lugar donde tengas el archivo Excel
+archivo_excel <- "Tab_Tes.xlsx"
+
+hojas <- c("semana 1", "semana 2", "semana 3", "semana 4")
+
+condiciones <- c(
+  "semana 1" = "base",
+  "semana 2" = "servicio_degradado",
+  "semana 3" = "producto_degradado",
+  "semana 4" = "entorno_degradado"
+)
+
+nombres_items <- c("P1", "P2", "P3",
+                   "S1", "S2", "S3",
+                   "E1", "E2", "E3", "E4",
+                   "E5", "E6", "E7", "E8",
+                   "I1", "I2", "I3")
+```
+
+# Lectura y consolidación
+
+Se leen las cuatro hojas del archivo Excel (una por semana/condición experimental) y se consolidan en un único data frame.
+
+```{r lectura}
+datos_lista <- list()
+
+for (hoja in hojas) {
+  df_temp <- read_excel(
+    path      = archivo_excel,
+    sheet     = hoja,
+    range     = "B2:S46",
+    col_names = TRUE
+  ) %>%
+    setNames(c("nro_comensal", nombres_items)) %>%
+    mutate(
+      semana    = which(hojas == hoja),
+      condicion = condiciones[hoja],
+      .before   = nro_comensal
+    )
+
+  datos_lista[[hoja]] <- df_temp
+}
+
+datos <- bind_rows(datos_lista)
+```
+
+El data frame consolidado tiene **`r nrow(datos)` filas** (44 comensales $\times$ 4 semanas) y **`r ncol(datos)` columnas**.
+
+# Verificaciones de integridad
+
+## Registros por semana
+
+```{r conteo-semana}
+datos %>%
+  count(semana, condicion, name = "n_registros") %>%
+  mutate(condicion = c("Base (todo bien)",
+                        "Servicio degradado",
+                        "Producto degradado",
+                        "Entorno degradado")) %>%
+  kable(col.names = c("Semana", "Condición experimental", "n"),
+        align    = "clc",
+        )
+```
+
+## Rango de ítems Likert
+
+Se verifica que todos los ítems de escala Likert (P1--P3, S1--S3, E1--E8, I1, I2) contengan valores entre 1 y 5.
+
+```{r rango-likert}
+items_likert <- c("P1","P2","P3","S1","S2","S3",
+                   "E1","E2","E3","E4","E5","E6","E7","E8",
+                   "I1","I2")
+
+rangos <- datos %>%
+  summarise(across(all_of(items_likert),
+                   list(Min = ~min(., na.rm = TRUE),
+                        Max = ~max(., na.rm = TRUE)))) %>%
+  pivot_longer(everything(),
+               names_to  = c("Item", ".value"),
+               names_sep = "_")
+
+estado_ok <- rangos$Min >= 1 & rangos$Max <= 5
+
+rangos %>%
+  mutate(Estado = ifelse(estado_ok, "OK", "FUERA DE RANGO")) %>%
+  kable(col.names = c("Ítem", "Mínimo", "Máximo", "Estado"),
+        align    = "lccc",
+        )
+```
+
+## Distribución de I3 (recomendar)
+
+La variable I3 es **binaria** (1 = Sí recomendaría, 2 = No recomendaría), a diferencia de los demás ítems que son Likert 1-5.
+
+```{r distribucion-i3}
+tabla_i3 <- table(
+  Semana = paste("Semana", datos$semana),
+  `Recomendaría (I3)` = ifelse(datos$I3 == 1, "1 = Sí", "2 = No")
+)
+
+tabla_i3 %>%
+  addmargins(margin = 2) %>%
+  kable(align    = "ccc",
+        )
+```
+
+## Valores faltantes
+
+```{r valores-faltantes}
+n_na <- sum(is.na(datos %>% select(all_of(nombres_items))))
+```
+
+Total de valores faltantes en los `r length(nombres_items)` ítems: **`r n_na`**.
+
+# Transformaciones
+
+## Recodificación de I3
+
+Se crea I3\_bin (1 = Sí, 0 = No) para facilitar el cálculo de proporciones y su uso en regresión logística.
+
+```{r recodificacion-i3}
+datos <- datos %>%
+  mutate(
+    I3_bin    = ifelse(I3 == 1, 1, 0),
+    I3_factor = factor(I3_bin, levels = c(0, 1),
+                       labels = c("No recomendaría", "Sí recomendaría"))
+  )
+```
+
+```{r verificar-recod-i3}
+table(
+  Semana = paste("Semana", datos$semana),
+  Recomendaria = datos$I3_factor
+) %>%
+  addmargins(margin = 2) %>%
+  kable(align    = "ccc",
+        )
+```
+
+## Índices agregados por dimensión
+
+Se calcula el promedio de los ítems de cada dimensión para obtener un puntaje compuesto:
+
+
+  - **Producto**: media de P1, P2, P3
+  - **Servicio**: media de S1, S2, S3
+  - **Entorno**: media de E1, E2, E3, E4, E5, E6, E7, E8
+  - **Satisfacción**: I1 (ítem único)
+  - **Revisitar**: I2 (ítem único)
+
+
+```{r indices-agregados}
+datos <- datos %>%
+  mutate(
+    idx_producto     = rowMeans(select(., P1, P2, P3)),
+    idx_servicio     = rowMeans(select(., S1, S2, S3)),
+    idx_entorno      = rowMeans(select(., E1, E2, E3, E4, E5, E6, E7, E8)),
+    idx_satisfaccion = I1,
+    idx_revisitar    = I2
+  )
+```
+
+## Conversión de variables categóricas a factores
+
+```{r factores}
+datos <- datos %>%
+  mutate(
+    semana    = factor(semana, levels = 1:4,
+                       labels = paste("Semana", 1:4)),
+    condicion = factor(condicion,
+                       levels = c("base",
+                                  "servicio_degradado",
+                                  "producto_degradado",
+                                  "entorno_degradado"),
+                       labels = c("Base (todo bien)",
+                                  "Servicio degradado",
+                                  "Producto degradado",
+                                  "Entorno degradado"))
+  )
+```
+
+# Estadísticos descriptivos por condición
+
+```{r tabla-descriptivos}
+resumen <- datos %>%
+  group_by(condicion) %>%
+  summarise(
+    n            = n(),
+    Producto_M   = round(mean(idx_producto), 2),
+    Producto_DE  = round(sd(idx_producto), 2),
+    Servicio_M   = round(mean(idx_servicio), 2),
+    Servicio_DE  = round(sd(idx_servicio), 2),
+    Entorno_M    = round(mean(idx_entorno), 2),
+    Entorno_DE   = round(sd(idx_entorno), 2),
+    Satisf_M     = round(mean(idx_satisfaccion), 2),
+    Satisf_DE    = round(sd(idx_satisfaccion), 2),
+    Revisitar_M  = round(mean(idx_revisitar), 2),
+    Revisitar_DE = round(sd(idx_revisitar), 2),
+    Recomendar   = round(mean(I3_bin) * 100, 1),
+    .groups = "drop"
+  )
+```
+
+```{r tabla-descriptivos-print, echo=FALSE}
+resumen %>%
+  kable(
+    col.names = c("Condición", "n",
+                   "M", "DE", "M", "DE", "M", "DE",
+                   "M", "DE", "M", "DE", "%"),
+    align = c("l", rep("c", 12))
+  )
+```
+
+# Verificación de la manipulación experimental
+
+En cada condición degradada, la dimensión manipulada debería mostrar un valor notablemente inferior al de la línea base, mientras que las demás dimensiones se mantienen relativamente estables.
+
+```{r tabla-manipulacion}
+manip <- datos %>%
+  group_by(condicion) %>%
+  summarise(
+    Producto = round(mean(idx_producto), 2),
+    Servicio = round(mean(idx_servicio), 2),
+    Entorno  = round(mean(idx_entorno), 2),
+    .groups  = "drop"
+  )
+
+manip %>%
+  kable(col.names = c("Condición", "Producto", "Servicio", "Entorno"),
+        align    = "lccc",
+        )
+```
+
+En la fila "Producto degradado" (semana 3), el índice de Producto cae a `r manip$Producto[3]` frente a `r manip$Producto[1]` de la base. Análogamente, el Servicio cae a `r manip$Servicio[2]` en la semana 2, y el Entorno cae a `r manip$Entorno[4]` en la semana 4. Las dimensiones no manipuladas se mantienen en niveles cercanos a la línea base, lo que confirma que la manipulación experimental fue efectiva.
+
+# Exportación de datos preparados
+
+```{r exportar}
+write.csv(datos, "datos_tesis_preparados.csv", row.names = FALSE)
+save(datos, file = "datos_tesis_preparados.RData")
+```
+
+Se generaron los archivos:
+
+
+  - `datos\_tesis\_preparados.csv} --- compatible con Jamovi, SPSS y Excel
+  - `datos\_tesis\_preparados.RData} --- preserva factores y tipos de datos para scripts R posteriores
+
+
+# Estructura final del data frame
+
+```{r estructura, echo=FALSE, results='asis'}
+salida_str <- capture.output(str(datos))
+cat("```\n")
+cat(salida_str, sep = "\n")
+cat("\n```\n")
+```
+
+# Diccionario de variables
+
+## Variables de agrupación
+
+```{r dict-agrupacion, echo=FALSE}
+tibble::tribble(
+  ~Variable,        ~Tipo,    ~Descripcion,
+  "semana",         "Factor", "Semana del evento (Semana 1 a 4)",
+  "condicion",      "Factor", "Condición experimental: Base / Servicio degradado / Producto degradado / Entorno degradado",
+  "nro_comensal", "Num",    "Número del comensal dentro de cada semana (1-44). NO identifica a la misma persona entre semanas"
+) %>%
+  kable(col.names = c("Variable", "Tipo", "Descripción"))
+```
+
+## Ítems individuales (Likert 1-5)
+
+```{r dict-items, echo=FALSE}
+tibble::tribble(
+  ~Codigo, ~Dimension,  ~Enunciado,
+  "P1",    "Producto",  "El sabor de la comida es excelente",
+  "P2",    "Producto",  "La presentación de la comida en el plato es muy atractiva",
+  "P3",    "Producto",  "La comida que se sirve en el restaurante se ve fresca",
+  "S1",    "Servicio",  "Los camareros se muestran atentos durante la visita",
+  "S2",    "Servicio",  "El comportamiento de los camareros me inspiró confianza",
+  "S3",    "Servicio",  "Los camareros mantienen una apariencia profesional y pulcra",
+  "E1",    "Entorno",   "La decoración del lugar es acogedora y atractiva",
+  "E2",    "Entorno",   "Los colores del restaurante crean un ambiente agradable",
+  "E3",    "Entorno",   "El mobiliario es de alta calidad y las sillas son cómodas",
+  "E4",    "Entorno",   "El menaje es de alta calidad (cubertería, vajilla, cristalería)",
+  "E5",    "Entorno",   "Los manteles y servilletas son de alta calidad",
+  "E6",    "Entorno",   "El espacio y distribución del mobiliario permite moverse libremente",
+  "E7",    "Entorno",   "La disposición de los asientos es espaciosa y cómoda",
+  "E8",    "Entorno",   "La música es adecuada"
+) %>%
+  kable(col.names = c("Código", "Dimensión", "Enunciado"),
+        )
+```
+
+## Variables dependientes
+
+```{r dict-vd, echo=FALSE}
+tibble::tribble(
+  ~Variable,         ~Tipo,    ~Descripcion,
+  "I1",              "Num",    "Satisfacción general (Likert 1-5)",
+  "I2",              "Num",    "Intención de revisitar (Likert 1-5)",
+  "I3",              "Num",    "Recomendaría --- codificación original (1=Sí, 2=No)",
+  "I3_bin",        "Num",    "Recomendaría --- recodificado (1=Sí, 0=No)",
+  "I3_factor",     "Factor", "Recomendaría --- con etiquetas legibles"
+) %>%
+  kable(col.names = c("Variable", "Tipo", "Descripción"))
+```
+
+## Índices agregados
+
+```{r dict-idx, echo=FALSE}
+tibble::tribble(
+  ~Variable,                ~Calculo,
+  "idx_producto",         "Promedio de P1, P2, P3",
+  "idx_servicio",         "Promedio de S1, S2, S3",
+  "idx_entorno",          "Promedio de E1, E2, E3, E4, E5, E6, E7, E8",
+  "idx_satisfaccion",     "= I1 (ítem único)",
+  "idx_revisitar",        "= I2 (ítem único)"
+) %>%
+  kable(col.names = c("Variable", "Cálculo"))
+```

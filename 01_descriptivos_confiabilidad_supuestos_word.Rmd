@@ -1,0 +1,503 @@
+---
+title: "Análisis Descriptivo, Confiabilidad y Verificación de Supuestos"
+subtitle: |
+  Impacto de los factores de la experiencia gastronómica
+  en la toma de decisiones del comensal
+author: "Martín Vargas Estrada"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output:
+  word_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{xcolor}
+  - \usepackage{pdflscape}
+  - \usepackage{geometry}
+  - \geometry{margin=2.5cm}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyhead[L]{\small Descriptivos, Confiabilidad y Supuestos}
+  - \fancyhead[R]{\small Tesis --- Experiencia Gastronómica}
+  - \fancyfoot[C]{\thepage}
+  - \renewcommand{\headrulewidth}{0.4pt}
+  - \usepackage{caption}
+  - \captionsetup{font=small, labelfont=bf}
+lang: es
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  comment = "#>",
+  fig.pos = "H",
+  fig.width  = 7,
+  fig.height = 4,
+  out.width  = "95%",
+  fig.align  = "center"
+)
+
+```
+
+# Carga de datos y librerías
+
+```{r librerias}
+# --- Librerías necesarias ---
+# install.packages(c("psych", "car", "ggplot2", "patchwork",
+#                     "nortest", "knitr", "kableExtra"))
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+library(psych)
+library(car)
+library(knitr)
+# library(kableExtra)  # No se necesita para Word
+```
+
+```{r carga-datos}
+# Cargar el data frame preparado en el script anterior
+load("datos_tesis_preparados.RData")
+
+# Definir vectores de ítems por dimensión (para uso repetido)
+items_producto <- c("P1", "P2", "P3")
+items_servicio <- c("S1", "S2", "S3")
+items_entorno  <- c("E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8")
+items_likert   <- c(items_producto, items_servicio, items_entorno, "I1", "I2")
+```
+
+Se trabaja con el data frame `datos` generado en el informe de preparación (176 observaciones: 44 comensales $\times$ 4 condiciones experimentales).
+
+# Estadísticos descriptivos
+
+## Descriptivos globales por ítem
+
+```{r desc-global}
+desc_global <- datos %>%
+  summarise(across(all_of(items_likert),
+                   list(M  = ~round(mean(.), 2),
+                        DE = ~round(sd(.), 2),
+                        Md = ~median(.)),
+                   .names = "{.col}_{.fn}")) %>%
+  pivot_longer(everything(),
+               names_to  = c("Item", ".value"),
+               names_sep = "_")
+```
+
+```{r desc-global-print, echo=FALSE}
+desc_global %>%
+  kable(col.names = c("Ítem", "Media", "DE", "Mediana"),
+        align    = "lccc")
+```
+
+## Descriptivos por condición experimental
+
+```{r desc-condicion}
+desc_cond <- datos %>%
+  group_by(condicion) %>%
+  summarise(across(all_of(c("idx_producto", "idx_servicio", "idx_entorno",
+                             "idx_satisfaccion", "idx_revisitar")),
+                   list(M  = ~round(mean(.), 2),
+                        DE = ~round(sd(.), 2),
+                        Md = ~round(median(.), 2)),
+                   .names = "{.col}_{.fn}"),
+            Rec_pct = round(mean(I3_bin) * 100, 1),
+            .groups = "drop")
+```
+
+```{r desc-condicion-print, echo=FALSE, results='asis'}
+# Tabla transpuesta para mejor lectura en PDF
+tab_cond <- desc_cond %>%
+  select(condicion,
+         idx_producto_M, idx_producto_DE,
+         idx_servicio_M, idx_servicio_DE,
+         idx_entorno_M, idx_entorno_DE,
+         idx_satisfaccion_M, idx_satisfaccion_DE,
+         idx_revisitar_M, idx_revisitar_DE,
+         Rec_pct)
+
+cat("\\begin{landscape}\n")
+
+tab_cond %>%
+  kable(
+    col.names = c("Condición",
+                   "M", "DE", "M", "DE", "M", "DE",
+                   "M", "DE", "M", "DE", "%"),
+    align    = c("l", rep("c", 11)), 
+    digits   = 2
+  )) %>%
+  cat()
+
+cat("\n\\end{landscape}\n")
+```
+
+## Distribución de las variables dependientes
+
+```{r histogramas-vd, fig.cap="Distribución de las variables dependientes por condición experimental.", fig.height=5}
+p1 <- ggplot(datos, aes(x = idx_satisfaccion, fill = condicion)) +
+  geom_histogram(binwidth = 1, color = "white", alpha = 0.85) +
+  facet_wrap(~condicion, ncol = 2) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = "Satisfacción (I1)", y = "Frecuencia") +
+  theme_minimal(base_size = 10) +
+  theme(legend.position = "none")
+
+p2 <- ggplot(datos, aes(x = idx_revisitar, fill = condicion)) +
+  geom_histogram(binwidth = 1, color = "white", alpha = 0.85) +
+  facet_wrap(~condicion, ncol = 2) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = "Revisitar (I2)", y = "Frecuencia") +
+  theme_minimal(base_size = 10) +
+  theme(legend.position = "none")
+
+p1 / p2 +
+  plot_annotation(tag_levels = "A")
+```
+
+```{r barras-recomendar, fig.cap="Proporción de comensales que recomendarían el establecimiento, por condición.", fig.height=3.5}
+datos %>%
+  group_by(condicion) %>%
+  summarise(pct = mean(I3_bin) * 100, .groups = "drop") %>%
+  ggplot(aes(x = condicion, y = pct, fill = condicion)) +
+  geom_col(width = 0.6, alpha = 0.85) +
+  geom_text(aes(label = paste0(round(pct, 1), "%")),
+            vjust = -0.5, size = 3.5) +
+  scale_fill_brewer(palette = "Set2") +
+  scale_y_continuous(limits = c(0, 105)) +
+  labs(x = NULL, y = "Porcentaje que recomendaría") +
+  theme_minimal(base_size = 10) +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 8))
+```
+
+## Distribución de los índices por dimensión
+
+```{r boxplots-dimensiones, fig.cap="Comparación de los índices de Producto, Servicio y Entorno por condición experimental.", fig.height=4}
+datos %>%
+  select(condicion, idx_producto, idx_servicio, idx_entorno) %>%
+  pivot_longer(-condicion, names_to = "dimension", values_to = "puntaje") %>%
+  mutate(dimension = case_match(dimension,
+                                "idx_producto" ~ "Producto",
+                                "idx_servicio" ~ "Servicio",
+                                "idx_entorno"  ~ "Entorno")) %>%
+  ggplot(aes(x = condicion, y = puntaje, fill = condicion)) +
+  geom_boxplot(alpha = 0.8, outlier.size = 1.5) +
+  facet_wrap(~dimension) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = NULL, y = "Puntaje promedio") +
+  theme_minimal(base_size = 10) +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 30, hjust = 1, size = 7))
+```
+
+
+
+# Análisis de confiabilidad (Alfa de Cronbach)
+
+Se evalúa la consistencia interna de cada subescala para justificar el uso de índices agregados. Se calcula el Alfa de Cronbach de forma global (las 4 semanas juntas, $n = 176$) y por cada condición experimental ($n = 44$).
+
+## Confiabilidad global
+
+```{r alpha-global}
+alpha_producto <- psych::alpha(datos[, items_producto], check.keys = TRUE)
+alpha_servicio <- psych::alpha(datos[, items_servicio], check.keys = TRUE)
+alpha_entorno  <- psych::alpha(datos[, items_entorno],  check.keys = TRUE)
+
+tab_alpha_global <- tibble::tribble(
+  ~Subescala,  ~Items, ~Alpha,
+  "Producto",  "P1, P2, P3 (3 ítems)",
+               round(alpha_producto$total$raw_alpha, 3),
+  "Servicio",  "S1, S2, S3 (3 ítems)",
+               round(alpha_servicio$total$raw_alpha, 3),
+  "Entorno",   "E1--E8 (8 ítems)",
+               round(alpha_entorno$total$raw_alpha, 3)
+)
+```
+
+```{r alpha-global-print, echo=FALSE}
+tab_alpha_global %>%
+  kable(col.names    = c("Subescala", "Ítems", "alfa"),
+        align        = "llc")
+```
+
+Como referencia, valores de $\alpha \geq 0.70$ se consideran aceptables para investigación exploratoria, y $\alpha \geq 0.80$ se consideran buenos.
+
+## Detalle ítem-total (contribución de cada ítem)
+
+### Subescala Producto
+
+```{r alpha-detail-prod, echo=FALSE}
+alpha_producto$item.stats %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("Item") %>%
+  select(Item, r.drop, mean, sd) %>%
+  mutate(across(where(is.numeric), ~round(., 3))) %>%
+  kable(col.names = c("Ítem", "r(ítem-total)", "Media", "DE"),
+        align    = "lccc")
+```
+
+### Subescala Servicio
+
+```{r alpha-detail-serv, echo=FALSE}
+alpha_servicio$item.stats %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("Item") %>%
+  select(Item, r.drop, mean, sd) %>%
+  mutate(across(where(is.numeric), ~round(., 3))) %>%
+  kable(col.names = c("Ítem", "r(ítem-total)", "Media", "DE"),
+        align    = "lccc")
+```
+
+### Subescala Entorno
+
+```{r alpha-detail-ent, echo=FALSE}
+alpha_entorno$item.stats %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("Item") %>%
+  select(Item, r.drop, mean, sd) %>%
+  mutate(across(where(is.numeric), ~round(., 3))) %>%
+  kable(col.names = c("Ítem", "r(ítem-total)", "Media", "DE"),
+        align    = "lccc")
+```
+
+### Alfa si se elimina el ítem
+
+```{r alpha-drop-prod, echo=FALSE}
+alpha_producto$alpha.drop %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("Item") %>%
+  select(Item, raw_alpha) %>%
+  mutate(raw_alpha = round(raw_alpha, 3)) %>%
+  kable(col.names = c("Ítem eliminado", "alfa resultante"),
+        align    = "lc", 
+        caption  = "Subescala Producto")
+```
+
+```{r alpha-drop-serv, echo=FALSE}
+alpha_servicio$alpha.drop %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("Item") %>%
+  select(Item, raw_alpha) %>%
+  mutate(raw_alpha = round(raw_alpha, 3)) %>%
+  kable(col.names = c("Ítem eliminado", "alfa resultante"),
+        align    = "lc", 
+        caption  = "Subescala Servicio")
+```
+
+```{r alpha-drop-ent, echo=FALSE}
+alpha_entorno$alpha.drop %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("Item") %>%
+  select(Item, raw_alpha) %>%
+  mutate(raw_alpha = round(raw_alpha, 3)) %>%
+  kable(col.names = c("Ítem eliminado", "alfa resultante"),
+        align    = "lc", 
+        caption  = "Subescala Entorno")
+```
+
+## Confiabilidad por condición experimental
+
+```{r alpha-por-condicion}
+condiciones_niveles <- levels(datos$condicion)
+
+alpha_x_cond <- data.frame(
+  Condicion = condiciones_niveles,
+  Producto  = NA_real_,
+  Servicio  = NA_real_,
+  Entorno   = NA_real_
+)
+
+for (i in seq_along(condiciones_niveles)) {
+  sub <- datos %>% filter(condicion == condiciones_niveles[i])
+  alpha_x_cond$Producto[i] <- round(
+    psych::alpha(sub[, items_producto], check.keys = TRUE)$total$raw_alpha, 3)
+  alpha_x_cond$Servicio[i] <- round(
+    psych::alpha(sub[, items_servicio], check.keys = TRUE)$total$raw_alpha, 3)
+  alpha_x_cond$Entorno[i]  <- round(
+    psych::alpha(sub[, items_entorno],  check.keys = TRUE)$total$raw_alpha, 3)
+}
+```
+
+```{r alpha-por-condicion-print, echo=FALSE}
+alpha_x_cond %>%
+  kable(col.names = c("Condición", "alfa Producto",
+                       "alfa Servicio", "alfa Entorno"),
+        align    = "lccc")
+```
+
+Si algún valor queda por debajo de 0.70 en una condición particular, puede deberse al tamaño muestral reducido ($n = 44$) y no necesariamente indica un problema con la escala, siempre que el alfa global sea aceptable.
+
+
+
+# Verificación de supuestos para pruebas inferenciales
+
+Dado que las variables dependientes son ordinales (Likert 1-5), se verifican los supuestos de normalidad y homocedasticidad para decidir entre pruebas paramétricas (ANOVA) y no paramétricas (Kruskal-Wallis).
+
+## Prueba de normalidad (Shapiro-Wilk)
+
+Se aplica el test de Shapiro-Wilk a cada variable dependiente dentro de cada condición experimental ($n = 44$ por grupo). La hipótesis nula es que los datos provienen de una distribución normal.
+
+```{r shapiro-wilk}
+vars_dep <- c("idx_satisfaccion", "idx_revisitar",
+              "idx_producto", "idx_servicio", "idx_entorno")
+
+etiquetas_var <- c("idx_satisfaccion" = "Satisfacción (I1)",
+                   "idx_revisitar"    = "Revisitar (I2)",
+                   "idx_producto"     = "Índice Producto",
+                   "idx_servicio"     = "Índice Servicio",
+                   "idx_entorno"      = "Índice Entorno")
+
+sw_resultados <- data.frame()
+
+for (vd in vars_dep) {
+  for (cond in condiciones_niveles) {
+    x <- datos %>% filter(condicion == cond) %>% pull(!!sym(vd))
+    test <- shapiro.test(x)
+    sw_resultados <- rbind(sw_resultados, data.frame(
+      Variable  = etiquetas_var[vd],
+      Condicion = cond,
+      W         = round(test$statistic, 4),
+      p         = round(test$p.value, 4),
+      Normal    = ifelse(test$p.value > 0.05, "Sí", "No")
+    ))
+  }
+}
+```
+
+```{r shapiro-print, echo=FALSE}
+sw_resultados %>%
+  kable(col.names = c("Variable", "Condición", "W", "p", "Normal (alfa=0.05)"),
+        align    = "llccc", 
+        row.names = FALSE))
+```
+
+## Gráficos Q-Q de las variables dependientes
+
+```{r qq-satisfaccion, fig.cap="Gráficos Q-Q de Satisfacción (I1) por condición.", fig.height=4}
+ggplot(datos, aes(sample = idx_satisfaccion)) +
+  stat_qq(size = 1.5, alpha = 0.6, color = "#2c7fb8") +
+  stat_qq_line(color = "red", linewidth = 0.5) +
+  facet_wrap(~condicion, scales = "free") +
+  labs(x = "Cuantiles teóricos", y = "Cuantiles observados",
+       title = "Satisfacción (I1)") +
+  theme_minimal(base_size = 10)
+```
+
+```{r qq-revisitar, fig.cap="Gráficos Q-Q de Revisitar (I2) por condición.", fig.height=4}
+ggplot(datos, aes(sample = idx_revisitar)) +
+  stat_qq(size = 1.5, alpha = 0.6, color = "#2c7fb8") +
+  stat_qq_line(color = "red", linewidth = 0.5) +
+  facet_wrap(~condicion, scales = "free") +
+  labs(x = "Cuantiles teóricos", y = "Cuantiles observados",
+       title = "Revisitar (I2)") +
+  theme_minimal(base_size = 10)
+```
+
+```{r qq-indices, fig.cap="Gráficos Q-Q de los índices agregados (Producto, Servicio, Entorno) por condición.", fig.height=8}
+datos_long <- datos %>%
+  select(condicion, idx_producto, idx_servicio, idx_entorno) %>%
+  pivot_longer(-condicion, names_to = "dimension", values_to = "puntaje") %>%
+  mutate(dimension = case_match(dimension,
+                                "idx_producto" ~ "Producto",
+                                "idx_servicio" ~ "Servicio",
+                                "idx_entorno"  ~ "Entorno"))
+
+ggplot(datos_long, aes(sample = puntaje)) +
+  stat_qq(size = 1.2, alpha = 0.5, color = "#2c7fb8") +
+  stat_qq_line(color = "red", linewidth = 0.5) +
+  facet_grid(dimension ~ condicion, scales = "free") +
+  labs(x = "Cuantiles teóricos", y = "Cuantiles observados") +
+  theme_minimal(base_size = 9)
+```
+
+## Prueba de homogeneidad de varianzas (Levene)
+
+Se aplica el test de Levene (basado en la mediana, más robusto que el basado en la media) para evaluar si las varianzas de cada variable dependiente son homogéneas entre las cuatro condiciones. La hipótesis nula es que las varianzas son iguales.
+
+```{r levene}
+levene_resultados <- data.frame()
+
+for (vd in vars_dep) {
+  formula_lev <- as.formula(paste(vd, "~ condicion"))
+  test_lev <- car::leveneTest(formula_lev, data = datos, center = median)
+
+  levene_resultados <- rbind(levene_resultados, data.frame(
+    Variable   = etiquetas_var[vd],
+    F          = round(test_lev$`F value`[1], 3),
+    df1        = test_lev$Df[1],
+    df2        = test_lev$Df[2],
+    p          = round(test_lev$`Pr(>F)`[1], 4),
+    Homogeneas = ifelse(test_lev$`Pr(>F)`[1] > 0.05, "Sí", "No")
+  ))
+}
+```
+
+```{r levene-print, echo=FALSE}
+levene_resultados %>%
+  kable(col.names = c("Variable", "F", "gl1", "gl2", "p",
+                       "Varianzas homogéneas"),
+        align    = "lccccc", 
+        row.names = FALSE))
+```
+
+
+
+# Resumen y decisión sobre pruebas a utilizar
+
+```{r resumen-decision}
+# Contar cuántas condiciones NO cumplen normalidad por variable
+resumen_norm <- sw_resultados %>%
+  group_by(Variable) %>%
+  summarise(
+    n_no_normal = sum(Normal == "No"),
+    .groups = "drop"
+  )
+
+# Combinar con resultados de Levene
+resumen_supuestos <- resumen_norm %>%
+  left_join(
+    levene_resultados %>% select(Variable, Homogeneas),
+    by = "Variable"
+  ) %>%
+  mutate(
+    Normalidad = ifelse(n_no_normal == 0,
+                        "Cumple en los 4 grupos",
+                        paste0("No cumple en ", n_no_normal, " de 4 grupos")),
+    Homocedasticidad = ifelse(Homogeneas == "Sí",
+                               "Cumple (Levene p > .05)",
+                               "No cumple (Levene p <= .05)"),
+    Prueba = ifelse(n_no_normal == 0 & Homogeneas == "Sí",
+                    "ANOVA + Tukey HSD",
+                    ifelse(n_no_normal == 0 & Homogeneas == "No",
+                           "Welch ANOVA + Games-Howell",
+                           "Kruskal-Wallis + Dunn"))
+  ) %>%
+  select(Variable, Normalidad, Homocedasticidad, Prueba)
+```
+
+```{r resumen-decision-print, echo=FALSE}
+resumen_supuestos %>%
+  kable(col.names = c("Variable", "Normalidad", "Homocedasticidad",
+                       "Prueba recomendada"),
+        align    = "llll")
+```
+
+**Criterio de decisión:**
+
+
+  - Si la normalidad se cumple en los 4 grupos y las varianzas son homogéneas: \textbf{ANOVA de un factor} con comparaciones post-hoc de Tukey HSD.
+  - Si la normalidad se cumple pero las varianzas no son homogéneas: \textbf{Welch ANOVA} con comparaciones post-hoc de Games-Howell.
+  - Si la normalidad no se cumple en al menos un grupo: \textbf{Kruskal-Wallis} con comparaciones post-hoc de Dunn (corrección de Bonferroni).
+  - Para la variable I3 (recomendar), al ser binaria, se utilizará la \textbf{prueba de chi-cuadrado} o \textbf{prueba exacta de Fisher}.
+
+
+Esta tabla de decisión guía la selección de pruebas para el siguiente informe de contraste de hipótesis.
