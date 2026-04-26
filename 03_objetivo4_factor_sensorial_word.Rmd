@@ -1,0 +1,796 @@
+---
+title: 'Objetivo 4: Factor Sensorial Más Influyente'
+author: "Ariana-Fernanda Valeria Vidal Tapia"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output:
+  word_document:
+    toc: true
+    toc_depth: '3'
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    latex_engine: xelatex
+subtitle: |
+  Impacto de los factores de la experiencia gastronómica
+  en la toma de decisiones del comensal
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{xcolor}
+- \usepackage{geometry}
+- \geometry{margin=2.5cm}
+- \usepackage{fancyhdr}
+- \pagestyle{fancy}
+- "\\fancyhead[R]{\\small Tesis --- Experiencia Gastronómica}"
+- \fancyfoot[C]{\thepage}
+- \renewcommand{\headrulewidth}{0.4pt}
+- \usepackage{caption}
+- \captionsetup{font=small, labelfont=bf}
+- \usepackage{indentfirst}
+- \setlength{\parindent}{1.25cm}
+- \fancyhead[L]{\small Objetivo 4: Factor Sensorial}
+lang: es
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  comment = "#>",
+  fig.pos = "H",
+  fig.width  = 7,
+  fig.height = 4,
+  out.width  = "95%",
+  fig.align  = "center"
+)
+```
+
+# Carga de datos y librerías
+
+```{r librerias}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+# library(kableExtra)  # No se necesita para Word
+```
+
+```{r carga-datos}
+load("datos_tesis_preparados.RData")
+vars_dep   <- c("idx_satisfaccion", "idx_revisitar", "I3_bin")
+etiq_dep   <- c("idx_satisfaccion" = "Satisfacción",
+                 "idx_revisitar"    = "Revisitar",
+                 "I3_bin"           = "Recomendar")
+```
+
+El objetivo específico 4 busca identificar cuál de los factores sensoriales dentro de cada dimensión --- Producto (P1, P2, P3), Servicio (S1, S2, S3) y Entorno (E1--E8) --- es el más influyente en la toma de decisiones del comensal, medida a través de tres variables dependientes: satisfacción (I1, Likert 1--5), intención de revisitar (I2, Likert 1--5) e intención de recomendar (I3, binaria Sí/No).
+
+Para cada dimensión se presentan: correlaciones de Spearman con ranking de influencia, tablas de contingencia, y visualizaciones (heatmap, barras apiladas y dispersión con jitter).
+
+# Tablas de puntajes promedio por condición
+
+```{r tabla-calidad-producto, echo=FALSE}
+datos %>%
+  group_by(condicion) %>%
+  summarise(P1 = round(mean(P1), 2), P2 = round(mean(P2), 2),
+            P3 = round(mean(P3), 2), .groups = "drop") %>%
+  kable(col.names = c("Condición", "P1 (Sabor)", "P2 (Presentación)", "P3 (Frescura)"),
+        align = "lccc", caption = "Calidad de Producto")
+```
+
+```{r tabla-calidad-servicio, echo=FALSE}
+datos %>%
+  group_by(condicion) %>%
+  summarise(S1 = round(mean(S1), 2), S2 = round(mean(S2), 2),
+            S3 = round(mean(S3), 2), .groups = "drop") %>%
+  kable(col.names = c("Condición", "S1 (Atención)", "S2 (Confianza)", "S3 (Apariencia)"),
+        align = "lccc", caption = "Calidad del Servicio")
+```
+
+```{r tabla-calidad-entorno, echo=FALSE}
+datos %>%
+  group_by(condicion) %>%
+  summarise(E1 = round(mean(E1), 2), E2 = round(mean(E2), 2),
+            E3 = round(mean(E3), 2), E4 = round(mean(E4), 2),
+            E5 = round(mean(E5), 2), E6 = round(mean(E6), 2),
+            E7 = round(mean(E7), 2), E8 = round(mean(E8), 2), .groups = "drop") %>%
+  kable(col.names = c("Condición", "E1 (Decoración)", "E2 (Colores)", "E3 (Mobiliario)",
+                       "E4 (Menaje)", "E5 (Manteles)", "E6 (Espacio)",
+                       "E7 (Asientos)", "E8 (Música)"),
+        align = c("l", rep("c", 8)), caption = "Calidad del Entorno")
+```
+
+
+
+# Análisis por ítems de Producto: P1, P2, P3 vs. variables dependientes
+
+## Correlaciones de Spearman
+
+Se calcula el coeficiente de correlación de Spearman ($\rho_s$) entre cada ítem del producto y cada variable dependiente.
+
+```{r spearman-items}
+items_prod <- c("P1", "P2", "P3")
+etiq_prod  <- c("P1" = "P1 (Sabor)", "P2" = "P2 (Presentación)",
+                 "P3" = "P3 (Frescura)")
+corr_resultados <- data.frame()
+for (item in items_prod) {
+  for (vd in vars_dep) {
+    test_s <- cor.test(datos[[item]], datos[[vd]], method = "spearman", exact = FALSE)
+    corr_resultados <- rbind(corr_resultados, data.frame(
+      Item = etiq_prod[item], VD = etiq_dep[vd],
+      rho = round(test_s$estimate, 3), p = test_s$p.value,
+      Sig = ifelse(test_s$p.value < 0.05, "Sí", "No")))
+  }
+}
+```
+
+```{r spearman-items-print, echo=FALSE}
+corr_resultados %>%
+  mutate(p = ifelse(p < 0.001, "< .001", format(round(p, 4), nsmall = 4))) %>%
+  kable(col.names = c("Ítem Producto", "Variable dependiente",
+                       "$\\rho_s$", "$p$", "Significativo"),
+        align = "llccc", escape = FALSE, row.names = FALSE)
+
+```
+
+### Ranking de influencia (Producto)
+
+```{r resumen-rho}
+resumen_rho <- corr_resultados %>%
+  group_by(Item) %>%
+  summarise(rho_medio = round(mean(abs(rho)), 3), .groups = "drop") %>%
+  arrange(desc(rho_medio))
+```
+
+```{r resumen-rho-print, echo=FALSE}
+resumen_rho %>%
+  mutate(Ranking = row_number()) %>%
+  select(Ranking, Item, rho_medio) %>%
+  kable(col.names = c("Ranking", "Ítem Producto", "$|\\rho_s|$ promedio"),
+        align = "clc", escape = FALSE)
+```
+
+
+
+## Tablas de contingencia (Producto)
+
+### P1 (Sabor) vs. Variables dependientes
+
+```{r cont-p1-satisf, echo=FALSE}
+table(P1 = datos$P1, Satisfaccion = datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption = "P1 (Sabor) vs. Satisfacción (I1)")
+```
+
+```{r cont-p1-revis, echo=FALSE}
+table(P1 = datos$P1, Revisitar = datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption = "P1 (Sabor) vs. Revisitar (I2)")
+```
+
+```{r cont-p1-recom, echo=FALSE}
+table(P1 = datos$P1, Recomendar = datos$I3_factor) %>% addmargins() %>%
+  kable(caption = "P1 (Sabor) vs. Recomendar (I3)")
+```
+
+### P2 (Presentación) vs. Variables dependientes
+
+```{r cont-p2-satisf, echo=FALSE}
+table(P2 = datos$P2, Satisfaccion = datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption = "P2 (Presentación) vs. Satisfacción (I1)")
+```
+
+```{r cont-p2-revis, echo=FALSE}
+table(P2 = datos$P2, Revisitar = datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption = "P2 (Presentación) vs. Revisitar (I2)")
+```
+
+```{r cont-p2-recom, echo=FALSE}
+table(P2 = datos$P2, Recomendar = datos$I3_factor) %>% addmargins() %>%
+  kable(caption = "P2 (Presentación) vs. Recomendar (I3)")
+```
+
+### P3 (Frescura) vs. Variables dependientes
+
+```{r cont-p3-satisf, echo=FALSE}
+table(P3 = datos$P3, Satisfaccion = datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption = "P3 (Frescura) vs. Satisfacción (I1)")
+```
+
+```{r cont-p3-revis, echo=FALSE}
+table(P3 = datos$P3, Revisitar = datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption = "P3 (Frescura) vs. Revisitar (I2)")
+```
+
+```{r cont-p3-recom, echo=FALSE}
+table(P3 = datos$P3, Recomendar = datos$I3_factor) %>% addmargins() %>%
+  kable(caption = "P3 (Frescura) vs. Recomendar (I3)")
+```
+
+
+
+## Visualizaciones (Producto)
+
+### Heatmap de correlaciones
+
+```{r heatmap-corr, fig.cap="Correlaciones de Spearman entre los ítems del Producto y las variables dependientes.", fig.height=3.5, fig.width=6}
+corr_resultados %>%
+  mutate(Item = factor(Item, levels = rev(c("P1 (Sabor)", "P2 (Presentación)", "P3 (Frescura)"))),
+         VD = factor(VD, levels = c("Satisfacción", "Revisitar", "Recomendar"))) %>%
+  ggplot(aes(x = VD, y = Item, fill = rho)) +
+  geom_tile(color = "white", linewidth = 1) +
+  geom_text(aes(label = format(rho, nsmall = 3)), size = 4, fontface = "bold") +
+  scale_fill_gradient2(low = "#d73027", mid = "#ffffbf", high = "#1a9850",
+                        midpoint = 0, limits = c(-1, 1), name = expression(rho[s])) +
+  labs(x = NULL, y = NULL) + theme_minimal(base_size = 11) +
+  theme(panel.grid = element_blank(), axis.text = element_text(size = 10), legend.position = "right")
+```
+
+### Proporción de Recomendar por nivel de cada ítem
+
+```{r mosaico-p1, fig.cap="Proporción de Recomendar por nivel de P1 (Sabor).", fig.height=3.5, fig.width=6}
+datos %>% count(P1 = factor(P1), I3_factor) %>% group_by(P1) %>% mutate(pct = n / sum(n)) %>%
+  ggplot(aes(x = P1, y = pct, fill = I3_factor)) +
+  geom_col(width = 0.7, alpha = 0.85) +
+  geom_text(aes(label = paste0(round(pct*100,0),"%")), position = position_stack(vjust=0.5), size=3) +
+  scale_fill_manual(values = c("No recomendaría"="#e74c3c","Sí recomendaría"="#27ae60"), name=NULL) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(x = "P1 (Sabor)", y = "Proporción") + theme_minimal(base_size=10) + theme(legend.position="bottom")
+```
+
+```{r mosaico-p2, fig.cap="Proporción de Recomendar por nivel de P2 (Presentación).", fig.height=3.5, fig.width=6}
+datos %>% count(P2 = factor(P2), I3_factor) %>% group_by(P2) %>% mutate(pct = n / sum(n)) %>%
+  ggplot(aes(x = P2, y = pct, fill = I3_factor)) +
+  geom_col(width = 0.7, alpha = 0.85) +
+  geom_text(aes(label = paste0(round(pct*100,0),"%")), position = position_stack(vjust=0.5), size=3) +
+  scale_fill_manual(values = c("No recomendaría"="#e74c3c","Sí recomendaría"="#27ae60"), name=NULL) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(x = "P2 (Presentación)", y = "Proporción") + theme_minimal(base_size=10) + theme(legend.position="bottom")
+```
+
+```{r mosaico-p3, fig.cap="Proporción de Recomendar por nivel de P3 (Frescura).", fig.height=3.5, fig.width=6}
+datos %>% count(P3 = factor(P3), I3_factor) %>% group_by(P3) %>% mutate(pct = n / sum(n)) %>%
+  ggplot(aes(x = P3, y = pct, fill = I3_factor)) +
+  geom_col(width = 0.7, alpha = 0.85) +
+  geom_text(aes(label = paste0(round(pct*100,0),"%")), position = position_stack(vjust=0.5), size=3) +
+  scale_fill_manual(values = c("No recomendaría"="#e74c3c","Sí recomendaría"="#27ae60"), name=NULL) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(x = "P3 (Frescura)", y = "Proporción") + theme_minimal(base_size=10) + theme(legend.position="bottom")
+```
+
+### Dispersión con jitter: Ítems del producto vs. Satisfacción
+
+```{r jitter-satisf, fig.cap="Relación entre cada ítem del Producto y la Satisfacción (I1).", fig.height=3.5, fig.width=8}
+datos %>% select(P1, P2, P3, idx_satisfaccion) %>%
+  pivot_longer(P1:P3, names_to = "Item", values_to = "Puntaje") %>%
+  mutate(Item = case_match(Item, "P1"~"P1 (Sabor)","P2"~"P2 (Presentación)","P3"~"P3 (Frescura)")) %>%
+  ggplot(aes(x = Puntaje, y = idx_satisfaccion)) +
+  geom_jitter(width=0.2, height=0.2, alpha=0.4, color="#2c7fb8", size=1.5) +
+  geom_smooth(method="lm", se=TRUE, color="#e74c3c", linewidth=0.7) +
+  facet_wrap(~Item) + labs(x="Puntaje del ítem", y="Satisfacción (I1)") + theme_minimal(base_size=10)
+```
+
+### Dispersión con jitter: Ítems del producto vs. Revisitar
+
+```{r jitter-revisitar, fig.cap="Relación entre cada ítem del Producto y la Intención de revisitar (I2).", fig.height=3.5, fig.width=8}
+datos %>% select(P1, P2, P3, idx_revisitar) %>%
+  pivot_longer(P1:P3, names_to = "Item", values_to = "Puntaje") %>%
+  mutate(Item = case_match(Item, "P1"~"P1 (Sabor)","P2"~"P2 (Presentación)","P3"~"P3 (Frescura)")) %>%
+  ggplot(aes(x = Puntaje, y = idx_revisitar)) +
+  geom_jitter(width=0.2, height=0.2, alpha=0.4, color="#2c7fb8", size=1.5) +
+  geom_smooth(method="lm", se=TRUE, color="#e74c3c", linewidth=0.7) +
+  facet_wrap(~Item) + labs(x="Puntaje del ítem", y="Revisitar (I2)") + theme_minimal(base_size=10)
+```
+
+### Resumen (Producto)
+
+```{r resumen-prod}
+mejor_item <- resumen_rho$Item[1]
+mejor_rho  <- resumen_rho$rho_medio[1]
+```
+
+El ítem de producto más influyente en la toma de decisiones del comensal es **`r mejor_item`**, con $|\rho_s|$ promedio = `r mejor_rho`.
+
+
+
+# Análisis por ítems de Servicio: S1, S2, S3 vs. variables dependientes
+
+## Correlaciones de Spearman
+
+```{r spearman-serv}
+items_serv <- c("S1", "S2", "S3")
+etiq_serv  <- c("S1" = "S1 (Atención)", "S2" = "S2 (Confianza)", "S3" = "S3 (Apariencia)")
+corr_serv <- data.frame()
+for (item in items_serv) {
+  for (vd in vars_dep) {
+    test_s <- cor.test(datos[[item]], datos[[vd]], method = "spearman", exact = FALSE)
+    corr_serv <- rbind(corr_serv, data.frame(
+      Item = etiq_serv[item], VD = etiq_dep[vd],
+      rho = round(test_s$estimate, 3), p = test_s$p.value,
+      Sig = ifelse(test_s$p.value < 0.05, "Sí", "No")))
+  }
+}
+```
+
+```{r spearman-serv-print, echo=FALSE}
+corr_serv %>%
+  mutate(p = ifelse(p < 0.001, "< .001", format(round(p, 4), nsmall = 4))) %>%
+  kable(col.names = c("Ítem Servicio", "Variable dependiente", "$\\rho_s$", "$p$", "Significativo"),
+        align = "llccc", escape = FALSE, row.names = FALSE)
+
+```
+
+### Ranking de influencia (Servicio)
+
+```{r resumen-rho-serv}
+resumen_rho_serv <- corr_serv %>%
+  group_by(Item) %>% summarise(rho_medio = round(mean(abs(rho)), 3), .groups = "drop") %>%
+  arrange(desc(rho_medio))
+```
+
+```{r resumen-rho-serv-print, echo=FALSE}
+resumen_rho_serv %>% mutate(Ranking = row_number()) %>% select(Ranking, Item, rho_medio) %>%
+  kable(col.names = c("Ranking", "Ítem Servicio", "$|\\rho_s|$ promedio"),
+        align = "clc", escape = FALSE)
+```
+
+
+
+## Tablas de contingencia (Servicio)
+
+### S1 (Atención) vs. Variables dependientes
+
+```{r cont-s1-satisf, echo=FALSE}
+table(S1=datos$S1, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="S1 (Atención) vs. Satisfacción (I1)")
+```
+
+```{r cont-s1-revis, echo=FALSE}
+table(S1=datos$S1, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="S1 (Atención) vs. Revisitar (I2)")
+```
+
+```{r cont-s1-recom, echo=FALSE}
+table(S1=datos$S1, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="S1 (Atención) vs. Recomendar (I3)")
+```
+
+### S2 (Confianza) vs. Variables dependientes
+
+```{r cont-s2-satisf, echo=FALSE}
+table(S2=datos$S2, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="S2 (Confianza) vs. Satisfacción (I1)")
+```
+
+```{r cont-s2-revis, echo=FALSE}
+table(S2=datos$S2, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="S2 (Confianza) vs. Revisitar (I2)")
+```
+
+```{r cont-s2-recom, echo=FALSE}
+table(S2=datos$S2, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="S2 (Confianza) vs. Recomendar (I3)")
+```
+
+### S3 (Apariencia) vs. Variables dependientes
+
+```{r cont-s3-satisf, echo=FALSE}
+table(S3=datos$S3, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="S3 (Apariencia) vs. Satisfacción (I1)")
+```
+
+```{r cont-s3-revis, echo=FALSE}
+table(S3=datos$S3, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="S3 (Apariencia) vs. Revisitar (I2)")
+```
+
+```{r cont-s3-recom, echo=FALSE}
+table(S3=datos$S3, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="S3 (Apariencia) vs. Recomendar (I3)")
+```
+
+
+
+## Visualizaciones (Servicio)
+
+### Heatmap de correlaciones
+
+```{r heatmap-serv, fig.cap="Correlaciones de Spearman entre los ítems del Servicio y las variables dependientes.", fig.height=3.5, fig.width=6}
+corr_serv %>%
+  mutate(Item = factor(Item, levels = rev(c("S1 (Atención)","S2 (Confianza)","S3 (Apariencia)"))),
+         VD = factor(VD, levels = c("Satisfacción","Revisitar","Recomendar"))) %>%
+  ggplot(aes(x=VD, y=Item, fill=rho)) + geom_tile(color="white", linewidth=1) +
+  geom_text(aes(label=format(rho, nsmall=3)), size=4, fontface="bold") +
+  scale_fill_gradient2(low="#d73027", mid="#ffffbf", high="#1a9850", midpoint=0, limits=c(-1,1), name=expression(rho[s])) +
+  labs(x=NULL, y=NULL) + theme_minimal(base_size=11) +
+  theme(panel.grid=element_blank(), axis.text=element_text(size=10), legend.position="right")
+```
+
+### Proporción de Recomendar por nivel de cada ítem
+
+```{r mosaico-s1, fig.cap="Proporción de Recomendar por nivel de S1 (Atención).", fig.height=3.5, fig.width=6}
+datos %>% count(S1=factor(S1), I3_factor) %>% group_by(S1) %>% mutate(pct=n/sum(n)) %>%
+  ggplot(aes(x=S1, y=pct, fill=I3_factor)) + geom_col(width=0.7, alpha=0.85) +
+  geom_text(aes(label=paste0(round(pct*100,0),"%")), position=position_stack(vjust=0.5), size=3) +
+  scale_fill_manual(values=c("No recomendaría"="#e74c3c","Sí recomendaría"="#27ae60"), name=NULL) +
+  scale_y_continuous(labels=scales::percent_format()) +
+  labs(x="S1 (Atención)", y="Proporción") + theme_minimal(base_size=10) + theme(legend.position="bottom")
+```
+
+```{r mosaico-s2, fig.cap="Proporción de Recomendar por nivel de S2 (Confianza).", fig.height=3.5, fig.width=6}
+datos %>% count(S2=factor(S2), I3_factor) %>% group_by(S2) %>% mutate(pct=n/sum(n)) %>%
+  ggplot(aes(x=S2, y=pct, fill=I3_factor)) + geom_col(width=0.7, alpha=0.85) +
+  geom_text(aes(label=paste0(round(pct*100,0),"%")), position=position_stack(vjust=0.5), size=3) +
+  scale_fill_manual(values=c("No recomendaría"="#e74c3c","Sí recomendaría"="#27ae60"), name=NULL) +
+  scale_y_continuous(labels=scales::percent_format()) +
+  labs(x="S2 (Confianza)", y="Proporción") + theme_minimal(base_size=10) + theme(legend.position="bottom")
+```
+
+```{r mosaico-s3, fig.cap="Proporción de Recomendar por nivel de S3 (Apariencia).", fig.height=3.5, fig.width=6}
+datos %>% count(S3=factor(S3), I3_factor) %>% group_by(S3) %>% mutate(pct=n/sum(n)) %>%
+  ggplot(aes(x=S3, y=pct, fill=I3_factor)) + geom_col(width=0.7, alpha=0.85) +
+  geom_text(aes(label=paste0(round(pct*100,0),"%")), position=position_stack(vjust=0.5), size=3) +
+  scale_fill_manual(values=c("No recomendaría"="#e74c3c","Sí recomendaría"="#27ae60"), name=NULL) +
+  scale_y_continuous(labels=scales::percent_format()) +
+  labs(x="S3 (Apariencia)", y="Proporción") + theme_minimal(base_size=10) + theme(legend.position="bottom")
+```
+
+### Dispersión con jitter: Ítems del servicio vs. Satisfacción
+
+```{r jitter-satisf-serv, fig.cap="Relación entre cada ítem del Servicio y la Satisfacción (I1).", fig.height=3.5, fig.width=8}
+datos %>% select(S1,S2,S3, idx_satisfaccion) %>%
+  pivot_longer(S1:S3, names_to="Item", values_to="Puntaje") %>%
+  mutate(Item = case_match(Item, "S1"~"S1 (Atención)","S2"~"S2 (Confianza)","S3"~"S3 (Apariencia)")) %>%
+  ggplot(aes(x=Puntaje, y=idx_satisfaccion)) +
+  geom_jitter(width=0.2, height=0.2, alpha=0.4, color="#2c7fb8", size=1.5) +
+  geom_smooth(method="lm", se=TRUE, color="#e74c3c", linewidth=0.7) +
+  facet_wrap(~Item) + labs(x="Puntaje del ítem", y="Satisfacción (I1)") + theme_minimal(base_size=10)
+```
+
+### Dispersión con jitter: Ítems del servicio vs. Revisitar
+
+```{r jitter-revis-serv, fig.cap="Relación entre cada ítem del Servicio y la Intención de revisitar (I2).", fig.height=3.5, fig.width=8}
+datos %>% select(S1,S2,S3, idx_revisitar) %>%
+  pivot_longer(S1:S3, names_to="Item", values_to="Puntaje") %>%
+  mutate(Item = case_match(Item, "S1"~"S1 (Atención)","S2"~"S2 (Confianza)","S3"~"S3 (Apariencia)")) %>%
+  ggplot(aes(x=Puntaje, y=idx_revisitar)) +
+  geom_jitter(width=0.2, height=0.2, alpha=0.4, color="#2c7fb8", size=1.5) +
+  geom_smooth(method="lm", se=TRUE, color="#e74c3c", linewidth=0.7) +
+  facet_wrap(~Item) + labs(x="Puntaje del ítem", y="Revisitar (I2)") + theme_minimal(base_size=10)
+```
+
+### Resumen (Servicio)
+
+```{r resumen-serv}
+mejor_serv <- resumen_rho_serv$Item[1]
+mejor_rho_serv <- resumen_rho_serv$rho_medio[1]
+```
+
+El ítem de servicio más influyente en la toma de decisiones del comensal es **`r mejor_serv`**, con $|\rho_s|$ promedio = `r mejor_rho_serv`.
+
+
+
+# Análisis por ítems de Entorno: E1--E8 vs. variables dependientes
+
+## Correlaciones de Spearman
+
+```{r spearman-ent}
+items_ent <- c("E1","E2","E3","E4","E5","E6","E7","E8")
+etiq_ent <- c("E1"="E1 (Decoración)","E2"="E2 (Colores)","E3"="E3 (Mobiliario)","E4"="E4 (Menaje)",
+              "E5"="E5 (Manteles)","E6"="E6 (Espacio)","E7"="E7 (Asientos)","E8"="E8 (Música)")
+corr_ent <- data.frame()
+for (item in items_ent) {
+  for (vd in vars_dep) {
+    test_s <- cor.test(datos[[item]], datos[[vd]], method="spearman", exact=FALSE)
+    corr_ent <- rbind(corr_ent, data.frame(
+      Item=etiq_ent[item], VD=etiq_dep[vd], rho=round(test_s$estimate,3),
+      p=test_s$p.value, Sig=ifelse(test_s$p.value<0.05,"Sí","No")))
+  }
+}
+```
+
+```{r spearman-ent-print, echo=FALSE}
+corr_ent %>%
+  mutate(p = ifelse(p < 0.001, "< .001", format(round(p, 4), nsmall = 4))) %>%
+  kable(col.names = c("Ítem Entorno","Variable dependiente","$\\rho_s$","$p$","Significativo"),
+        align="llccc", escape=FALSE, row.names=FALSE)
+
+```
+
+### Ranking de influencia (Entorno)
+
+```{r resumen-rho-ent}
+resumen_rho_ent <- corr_ent %>%
+  group_by(Item) %>% summarise(rho_medio=round(mean(abs(rho)),3), .groups="drop") %>%
+  arrange(desc(rho_medio))
+```
+
+```{r resumen-rho-ent-print, echo=FALSE}
+resumen_rho_ent %>% mutate(Ranking=row_number()) %>% select(Ranking, Item, rho_medio) %>%
+  kable(col.names=c("Ranking","Ítem Entorno","$|\\rho_s|$ promedio"),
+        align="clc", escape=FALSE)
+```
+
+
+
+## Tablas de contingencia (Entorno)
+
+### E1 (Decoración) vs. Variables dependientes
+
+```{r cont-e1-satisf, echo=FALSE}
+table(E1=datos$E1, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="E1 (Decoración) vs. Satisfacción (I1)")
+```
+
+```{r cont-e1-revis, echo=FALSE}
+table(E1=datos$E1, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="E1 (Decoración) vs. Revisitar (I2)")
+```
+
+```{r cont-e1-recom, echo=FALSE}
+table(E1=datos$E1, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="E1 (Decoración) vs. Recomendar (I3)")
+```
+
+### E2 (Colores) vs. Variables dependientes
+
+```{r cont-e2-satisf, echo=FALSE}
+table(E2=datos$E2, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="E2 (Colores) vs. Satisfacción (I1)")
+```
+
+```{r cont-e2-revis, echo=FALSE}
+table(E2=datos$E2, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="E2 (Colores) vs. Revisitar (I2)")
+```
+
+```{r cont-e2-recom, echo=FALSE}
+table(E2=datos$E2, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="E2 (Colores) vs. Recomendar (I3)")
+```
+
+### E3 (Mobiliario) vs. Variables dependientes
+
+```{r cont-e3-satisf, echo=FALSE}
+table(E3=datos$E3, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="E3 (Mobiliario) vs. Satisfacción (I1)")
+```
+
+```{r cont-e3-revis, echo=FALSE}
+table(E3=datos$E3, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="E3 (Mobiliario) vs. Revisitar (I2)")
+```
+
+```{r cont-e3-recom, echo=FALSE}
+table(E3=datos$E3, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="E3 (Mobiliario) vs. Recomendar (I3)")
+```
+
+### E4 (Menaje) vs. Variables dependientes
+
+```{r cont-e4-satisf, echo=FALSE}
+table(E4=datos$E4, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="E4 (Menaje) vs. Satisfacción (I1)")
+```
+
+```{r cont-e4-revis, echo=FALSE}
+table(E4=datos$E4, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="E4 (Menaje) vs. Revisitar (I2)")
+```
+
+```{r cont-e4-recom, echo=FALSE}
+table(E4=datos$E4, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="E4 (Menaje) vs. Recomendar (I3)")
+```
+
+### E5 (Manteles) vs. Variables dependientes
+
+```{r cont-e5-satisf, echo=FALSE}
+table(E5=datos$E5, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="E5 (Manteles) vs. Satisfacción (I1)")
+```
+
+```{r cont-e5-revis, echo=FALSE}
+table(E5=datos$E5, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="E5 (Manteles) vs. Revisitar (I2)")
+```
+
+```{r cont-e5-recom, echo=FALSE}
+table(E5=datos$E5, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="E5 (Manteles) vs. Recomendar (I3)")
+```
+
+### E6 (Espacio) vs. Variables dependientes
+
+```{r cont-e6-satisf, echo=FALSE}
+table(E6=datos$E6, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="E6 (Espacio) vs. Satisfacción (I1)")
+```
+
+```{r cont-e6-revis, echo=FALSE}
+table(E6=datos$E6, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="E6 (Espacio) vs. Revisitar (I2)")
+```
+
+```{r cont-e6-recom, echo=FALSE}
+table(E6=datos$E6, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="E6 (Espacio) vs. Recomendar (I3)")
+```
+
+### E7 (Asientos) vs. Variables dependientes
+
+```{r cont-e7-satisf, echo=FALSE}
+table(E7=datos$E7, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="E7 (Asientos) vs. Satisfacción (I1)")
+```
+
+```{r cont-e7-revis, echo=FALSE}
+table(E7=datos$E7, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="E7 (Asientos) vs. Revisitar (I2)")
+```
+
+```{r cont-e7-recom, echo=FALSE}
+table(E7=datos$E7, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="E7 (Asientos) vs. Recomendar (I3)")
+```
+
+### E8 (Música) vs. Variables dependientes
+
+```{r cont-e8-satisf, echo=FALSE}
+table(E8=datos$E8, Satisfaccion=datos$idx_satisfaccion) %>% addmargins() %>%
+  kable(caption="E8 (Música) vs. Satisfacción (I1)")
+```
+
+```{r cont-e8-revis, echo=FALSE}
+table(E8=datos$E8, Revisitar=datos$idx_revisitar) %>% addmargins() %>%
+  kable(caption="E8 (Música) vs. Revisitar (I2)")
+```
+
+```{r cont-e8-recom, echo=FALSE}
+table(E8=datos$E8, Recomendar=datos$I3_factor) %>% addmargins() %>%
+  kable(caption="E8 (Música) vs. Recomendar (I3)")
+```
+
+
+
+## Visualizaciones (Entorno)
+
+### Heatmap de correlaciones
+
+```{r heatmap-ent, fig.cap="Correlaciones de Spearman entre los ítems del Entorno y las variables dependientes.", fig.height=5, fig.width=7}
+corr_ent %>%
+  mutate(Item = factor(Item, levels = rev(c("E1 (Decoración)","E2 (Colores)","E3 (Mobiliario)",
+         "E4 (Menaje)","E5 (Manteles)","E6 (Espacio)","E7 (Asientos)","E8 (Música)"))),
+         VD = factor(VD, levels = c("Satisfacción","Revisitar","Recomendar"))) %>%
+  ggplot(aes(x=VD, y=Item, fill=rho)) + geom_tile(color="white", linewidth=1) +
+  geom_text(aes(label=format(rho, nsmall=3)), size=3.5, fontface="bold") +
+  scale_fill_gradient2(low="#d73027", mid="#ffffbf", high="#1a9850", midpoint=0, limits=c(-1,1), name=expression(rho[s])) +
+  labs(x=NULL, y=NULL) + theme_minimal(base_size=11) +
+  theme(panel.grid=element_blank(), axis.text=element_text(size=9), legend.position="right")
+```
+
+### Proporción de Recomendar por nivel de cada ítem del Entorno
+
+```{r mosaico-ent-all, fig.cap="Proporción de Recomendar por nivel de cada ítem del Entorno.", fig.height=8, fig.width=8}
+datos %>% select(E1,E2,E3,E4,E5,E6,E7,E8, I3_factor) %>%
+  pivot_longer(E1:E8, names_to="Item", values_to="Puntaje") %>%
+  mutate(Item = case_match(Item, "E1"~"E1 (Decoración)","E2"~"E2 (Colores)",
+    "E3"~"E3 (Mobiliario)","E4"~"E4 (Menaje)","E5"~"E5 (Manteles)",
+    "E6"~"E6 (Espacio)","E7"~"E7 (Asientos)","E8"~"E8 (Música)")) %>%
+  count(Item, Puntaje=factor(Puntaje), I3_factor) %>%
+  group_by(Item, Puntaje) %>% mutate(pct=n/sum(n)) %>%
+  ggplot(aes(x=Puntaje, y=pct, fill=I3_factor)) +
+  geom_col(width=0.7, alpha=0.85) +
+  geom_text(aes(label=paste0(round(pct*100,0),"%")), position=position_stack(vjust=0.5), size=2.5) +
+  facet_wrap(~Item, ncol=2) +
+  scale_fill_manual(values=c("No recomendaría"="#e74c3c","Sí recomendaría"="#27ae60"), name=NULL) +
+  scale_y_continuous(labels=scales::percent_format()) +
+  labs(x="Puntaje del ítem", y="Proporción") + theme_minimal(base_size=9) + theme(legend.position="bottom")
+```
+
+### Dispersión con jitter: Ítems del entorno vs. Satisfacción
+
+```{r jitter-satisf-ent, fig.cap="Relación entre cada ítem del Entorno y la Satisfacción (I1).", fig.height=6, fig.width=8}
+datos %>% select(E1,E2,E3,E4,E5,E6,E7,E8, idx_satisfaccion) %>%
+  pivot_longer(E1:E8, names_to="Item", values_to="Puntaje") %>%
+  mutate(Item = case_match(Item, "E1"~"E1 (Decoración)","E2"~"E2 (Colores)",
+    "E3"~"E3 (Mobiliario)","E4"~"E4 (Menaje)","E5"~"E5 (Manteles)",
+    "E6"~"E6 (Espacio)","E7"~"E7 (Asientos)","E8"~"E8 (Música)")) %>%
+  ggplot(aes(x=Puntaje, y=idx_satisfaccion)) +
+  geom_jitter(width=0.2, height=0.2, alpha=0.4, color="#2c7fb8", size=1.2) +
+  geom_smooth(method="lm", se=TRUE, color="#e74c3c", linewidth=0.7) +
+  facet_wrap(~Item, ncol=2) + labs(x="Puntaje del ítem", y="Satisfacción (I1)") + theme_minimal(base_size=9)
+```
+
+### Dispersión con jitter: Ítems del entorno vs. Revisitar
+
+```{r jitter-revis-ent, fig.cap="Relación entre cada ítem del Entorno y la Intención de revisitar (I2).", fig.height=6, fig.width=8}
+datos %>% select(E1,E2,E3,E4,E5,E6,E7,E8, idx_revisitar) %>%
+  pivot_longer(E1:E8, names_to="Item", values_to="Puntaje") %>%
+  mutate(Item = case_match(Item, "E1"~"E1 (Decoración)","E2"~"E2 (Colores)",
+    "E3"~"E3 (Mobiliario)","E4"~"E4 (Menaje)","E5"~"E5 (Manteles)",
+    "E6"~"E6 (Espacio)","E7"~"E7 (Asientos)","E8"~"E8 (Música)")) %>%
+  ggplot(aes(x=Puntaje, y=idx_revisitar)) +
+  geom_jitter(width=0.2, height=0.2, alpha=0.4, color="#2c7fb8", size=1.2) +
+  geom_smooth(method="lm", se=TRUE, color="#e74c3c", linewidth=0.7) +
+  facet_wrap(~Item, ncol=2) + labs(x="Puntaje del ítem", y="Revisitar (I2)") + theme_minimal(base_size=9)
+```
+
+### Resumen (Entorno)
+
+```{r resumen-ent}
+mejor_ent <- resumen_rho_ent$Item[1]
+mejor_rho_ent <- resumen_rho_ent$rho_medio[1]
+```
+
+El ítem de entorno más influyente en la toma de decisiones del comensal es **`r mejor_ent`**, con $|\rho_s|$ promedio = `r mejor_rho_ent`.
+
+
+
+# Resumen general del Objetivo 4
+
+```{r ranking-global}
+ranking_global <- bind_rows(
+  resumen_rho %>% mutate(Dimension = "Producto"),
+  resumen_rho_serv %>% mutate(Dimension = "Servicio"),
+  resumen_rho_ent %>% mutate(Dimension = "Entorno")
+) %>% arrange(desc(rho_medio))
+```
+
+## Conclusión --- Dimensión Producto
+
+```{r concl-prod}
+prod_1 <- resumen_rho$Item[1]
+prod_1_rho <- resumen_rho$rho_medio[1]
+prod_ult <- resumen_rho$Item[nrow(resumen_rho)]
+prod_ult_rho <- resumen_rho$rho_medio[nrow(resumen_rho)]
+```
+
+Dentro de la dimensión Producto, el ítem más influyente es **`r prod_1`** ($|\rho_s|$ promedio = `r prod_1_rho`), mientras que el de menor influencia es **`r prod_ult`** ($|\rho_s|$ promedio = `r prod_ult_rho`). Las tablas de contingencia y los gráficos de barras apiladas confirman que a mayor puntaje en los ítems de producto, la proporción de comensales dispuestos a recomendar el establecimiento aumenta de forma consistente. Los gráficos de dispersión muestran una relación positiva entre los tres ítems y las variables de satisfacción y revisita.
+
+## Conclusión --- Dimensión Servicio
+
+```{r concl-serv}
+serv_1 <- resumen_rho_serv$Item[1]
+serv_1_rho <- resumen_rho_serv$rho_medio[1]
+serv_ult <- resumen_rho_serv$Item[nrow(resumen_rho_serv)]
+serv_ult_rho <- resumen_rho_serv$rho_medio[nrow(resumen_rho_serv)]
+```
+
+Dentro de la dimensión Servicio, el ítem más influyente es **`r serv_1`** ($|\rho_s|$ promedio = `r serv_1_rho`), y el de menor influencia es **`r serv_ult`** ($|\rho_s|$ promedio = `r serv_ult_rho`). Los patrones observados en las tablas de contingencia y en los gráficos de mosaico son coherentes con los resultados de las correlaciones: los niveles más altos de percepción de servicio se asocian con mayor proporción de recomendación y con puntajes más elevados de satisfacción y revisita.
+
+## Conclusión --- Dimensión Entorno
+
+```{r concl-ent}
+ent_1 <- resumen_rho_ent$Item[1]
+ent_1_rho <- resumen_rho_ent$rho_medio[1]
+ent_ult <- resumen_rho_ent$Item[nrow(resumen_rho_ent)]
+ent_ult_rho <- resumen_rho_ent$rho_medio[nrow(resumen_rho_ent)]
+```
+
+Dentro de la dimensión Entorno, el ítem más influyente es **`r ent_1`** ($|\rho_s|$ promedio = `r ent_1_rho`), y el de menor influencia es **`r ent_ult`** ($|\rho_s|$ promedio = `r ent_ult_rho`). La mayor cantidad de ítems en esta dimensión (8 frente a 3 de las otras) permite una mirada más granular: el heatmap evidencia que no todos los aspectos del entorno pesan por igual, y las barras apiladas muestran que ciertos elementos del ambiente tienen una relación más marcada con la decisión de recomendar.
+
+## Conclusión general
+
+```{r concl-general}
+top3 <- ranking_global %>% head(3)
+top1 <- top3$Item[1]
+top1_dim <- top3$Dimension[1]
+top1_rho <- top3$rho_medio[1]
+```
+
+```{r tabla-ranking-global, echo=FALSE}
+ranking_global %>%
+  mutate(Ranking = row_number()) %>%
+  select(Ranking, Dimension, Item, rho_medio) %>%
+  kable(col.names = c("Ranking", "Dimensión", "Ítem", "$|\\rho_s|$ promedio"),
+        align = "clcc", escape = FALSE,
+        caption = "Ranking global de ítems por influencia sobre las variables dependientes")
+```
+
+Considerando las tres dimensiones de forma conjunta, el factor sensorial más influyente en la toma de decisiones del comensal es **`r top1`** (dimensión **`r top1_dim`**), con un $|\rho_s|$ promedio de `r top1_rho`. Este resultado indica que, entre todos los atributos evaluados, dicho factor presenta la asociación más fuerte y consistente con las tres variables de resultado: satisfacción, intención de revisitar e intención de recomendar.
+
+La tabla de ranking global permite además identificar cuáles ítems de cada dimensión contribuyen más a la experiencia del comensal, información útil para priorizar esfuerzos de mejora en un establecimiento de alimentos y bebidas.

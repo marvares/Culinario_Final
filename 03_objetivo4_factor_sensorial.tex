@@ -1,0 +1,733 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+  spanish,
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{pdflscape}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+Factor Sensorial}
+\fancyhead[R]{\small Tesis --- Experiencia Gastronómica}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+\usepackage{indentfirst}
+\setlength{\parindent}{1.25cm}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Objetivo 4: Factor Sensorial Más Influyente},
+  pdfauthor={Martín Vargas Estrada},
+  pdflang={es},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Objetivo 4: Factor Sensorial Más Influyente}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Impacto de los factores de la experiencia gastronómica en la
+toma de decisiones del comensal}
+\author{Martín Vargas Estrada}
+\date{30 de March de 2026}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\section{Carga de datos y
+librerías}\label{carga-de-datos-y-libreruxedas}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(dplyr)}
+\FunctionTok{library}\NormalTok{(tidyr)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(knitr)}
+\FunctionTok{library}\NormalTok{(kableExtra)}
+\FunctionTok{library}\NormalTok{(gridExtra)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{load}\NormalTok{(}\StringTok{"datos\_tesis\_preparados.RData"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+El objetivo específico 4 busca identificar cuál de los tres factores
+sensoriales del producto (sabor (P1), presentación (P2) y frescura (P3))
+es el más influyente en la toma de decisiones del comensal, medida a
+través de tres variables dependientes: satisfacción (I1, Likert 1 a 5),
+intención de revisitar (I2, Likert 1 a 5) e intención de recomendar (I3,
+binaria Sí/No).
+
+Se analizan las 9 combinaciones (3 ítems \(\times\) 3 VD) mediante
+correlaciones de Spearman, tablas de contingencia y visualizaciones.
+
+\newpage
+
+\section{Correlaciones de Spearman: P1, P2, P3 vs.~variables
+dependientes}\label{correlaciones-de-spearman-p1-p2-p3-vs.-variables-dependientes}
+
+Se calcula el coeficiente de correlación de Spearman (\(\rho_s\)) entre
+cada ítem del producto y cada variable dependiente. Al tratarse de
+variables ordinales, Spearman es la medida de asociación más apropiada.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{items\_prod }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"P1"}\NormalTok{, }\StringTok{"P2"}\NormalTok{, }\StringTok{"P3"}\NormalTok{)}
+\NormalTok{etiq\_prod  }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"P1"} \OtherTok{=} \StringTok{"P1 (Sabor)"}\NormalTok{, }\StringTok{"P2"} \OtherTok{=} \StringTok{"P2 (Presentación)"}\NormalTok{,}
+                 \StringTok{"P3"} \OtherTok{=} \StringTok{"P3 (Frescura)"}\NormalTok{)}
+
+\NormalTok{vars\_dep   }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"idx\_satisfaccion"}\NormalTok{, }\StringTok{"idx\_revisitar"}\NormalTok{, }\StringTok{"I3\_bin"}\NormalTok{)}
+\NormalTok{etiq\_dep   }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"idx\_satisfaccion"} \OtherTok{=} \StringTok{"Satisfacción"}\NormalTok{,}
+                 \StringTok{"idx\_revisitar"}    \OtherTok{=} \StringTok{"Revisitar"}\NormalTok{,}
+                 \StringTok{"I3\_bin"}           \OtherTok{=} \StringTok{"Recomendar"}\NormalTok{)}
+
+\NormalTok{corr\_resultados }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{ (item }\ControlFlowTok{in}\NormalTok{ items\_prod) \{}
+  \ControlFlowTok{for}\NormalTok{ (vd }\ControlFlowTok{in}\NormalTok{ vars\_dep) \{}
+\NormalTok{    test\_s }\OtherTok{\textless{}{-}} \FunctionTok{cor.test}\NormalTok{(datos[[item]], datos[[vd]],}
+                        \AttributeTok{method =} \StringTok{"spearman"}\NormalTok{, }\AttributeTok{exact =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{    corr\_resultados }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(corr\_resultados, }\FunctionTok{data.frame}\NormalTok{(}
+      \AttributeTok{Item     =}\NormalTok{ etiq\_prod[item],}
+      \AttributeTok{VD       =}\NormalTok{ etiq\_dep[vd],}
+      \AttributeTok{rho      =} \FunctionTok{round}\NormalTok{(test\_s}\SpecialCharTok{$}\NormalTok{estimate, }\DecValTok{3}\NormalTok{),}
+      \AttributeTok{p        =}\NormalTok{ test\_s}\SpecialCharTok{$}\NormalTok{p.value,}
+      \AttributeTok{Sig      =} \FunctionTok{ifelse}\NormalTok{(test\_s}\SpecialCharTok{$}\NormalTok{p.value }\SpecialCharTok{\textless{}} \FloatTok{0.05}\NormalTok{, }\StringTok{"Sí"}\NormalTok{, }\StringTok{"No"}\NormalTok{)}
+\NormalTok{    ))}
+\NormalTok{  \}}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[!h]
+\centering
+\begin{tabular}{llcc>{}c}
+\toprule
+Ítem Producto & Variable dependiente & $\rho_s$ & $p$ & Significativo\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{P1 (Sabor)}}\\
+\hspace{1em}P1 (Sabor) & Satisfacción & 0.586 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P1 (Sabor) & Revisitar & 0.550 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P1 (Sabor) & Recomendar & 0.484 & < .001 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{P2 (Presentación)}}\\
+\hspace{1em}P2 (Presentación) & Satisfacción & 0.490 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P2 (Presentación) & Revisitar & 0.517 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P2 (Presentación) & Recomendar & 0.427 & < .001 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{P3 (Frescura)}}\\
+\hspace{1em}P3 (Frescura) & Satisfacción & 0.414 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P3 (Frescura) & Revisitar & 0.351 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P3 (Frescura) & Recomendar & 0.364 & < .001 & \textcolor{teal}{Sí}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El ítem con mayor \(|\rho_s|\) promedio a través de las tres VD es el
+factor sensorial más influyente.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{resumen\_rho }\OtherTok{\textless{}{-}}\NormalTok{ corr\_resultados }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(Item) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{rho\_medio =} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(}\FunctionTok{abs}\NormalTok{(rho)), }\DecValTok{3}\NormalTok{),}
+    \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(rho\_medio))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[!h]
+\centering
+\begin{tabular}{lc}
+\toprule
+Ítem Producto & $|\rho_s|$ promedio\\
+\midrule
+P1 (Sabor) & 0.540\\
+P2 (Presentación) & 0.478\\
+P3 (Frescura) & 0.376\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+\section{Tablas de contingencia}\label{tablas-de-contingencia}
+
+Se presentan las tablas de contingencia cruzando cada ítem del producto
+(P1, P2, P3) con cada variable dependiente. Las frecuencias muestran
+cómo se distribuyen las respuestas de las VD en cada nivel del ítem.
+
+\subsection{P1 (Sabor) vs.~Variables
+dependientes}\label{p1-sabor-vs.-variables-dependientes}
+
+\subsubsection{P1 vs.~Satisfacción
+(I1)}\label{p1-vs.-satisfacciuxf3n-i1}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:cont-p1-satisf}Tabla de contingencia: P1 (Sabor) vs. Satisfacción (I1)}
+\centering
+\begin{tabular}[t]{lrrrrrr}
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 3 & 6 & 1 & 0 & 0 & 10\\
+2 & 2 & 21 & 12 & 4 & 0 & 39\\
+3 & 1 & 7 & 25 & 37 & 0 & 70\\
+4 & 0 & 3 & 7 & 29 & 8 & 47\\
+5 & 0 & 2 & 2 & 4 & 2 & 10\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{P1 vs.~Revisitar (I2)}\label{p1-vs.-revisitar-i2}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:cont-p1-revis}Tabla de contingencia: P1 (Sabor) vs. Revisitar (I2)}
+\centering
+\begin{tabular}[t]{lrrrrrr}
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 5 & 4 & 1 & 0 & 0 & 10\\
+2 & 2 & 23 & 13 & 1 & 0 & 39\\
+3 & 1 & 10 & 34 & 23 & 2 & 70\\
+4 & 0 & 7 & 8 & 22 & 10 & 47\\
+5 & 1 & 1 & 4 & 1 & 3 & 10\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{P1 vs.~Recomendar (I3)}\label{p1-vs.-recomendar-i3}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:cont-p1-recom}Tabla de contingencia: P1 (Sabor) vs. Recomendar (I3)}
+\centering
+\begin{tabular}[t]{lrrr}
+\toprule
+  & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 10 & 0 & 10\\
+2 & 33 & 6 & 39\\
+3 & 30 & 40 & 70\\
+4 & 12 & 35 & 47\\
+5 & 2 & 8 & 10\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{P2 (Presentación) vs.~Variables
+dependientes}\label{p2-presentaciuxf3n-vs.-variables-dependientes}
+
+\subsubsection{P2 vs.~Satisfacción
+(I1)}\label{p2-vs.-satisfacciuxf3n-i1}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:cont-p2-satisf}Tabla de contingencia: P2 (Presentación) vs. Satisfacción (I1)}
+\centering
+\begin{tabular}[t]{lrrrrrr}
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 0 & 4 & 0 & 0 & 0 & 4\\
+2 & 4 & 8 & 9 & 1 & 0 & 22\\
+3 & 1 & 18 & 24 & 25 & 1 & 69\\
+4 & 1 & 6 & 11 & 36 & 4 & 58\\
+5 & 0 & 3 & 3 & 12 & 5 & 23\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{P2 vs.~Revisitar (I2)}\label{p2-vs.-revisitar-i2}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:cont-p2-revis}Tabla de contingencia: P2 (Presentación) vs. Revisitar (I2)}
+\centering
+\begin{tabular}[t]{lrrrrrr}
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 2 & 0 & 0 & 0 & 4\\
+2 & 4 & 13 & 5 & 0 & 0 & 22\\
+3 & 1 & 23 & 26 & 18 & 1 & 69\\
+4 & 1 & 6 & 22 & 21 & 8 & 58\\
+5 & 1 & 1 & 7 & 8 & 6 & 23\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{P2 vs.~Recomendar (I3)}\label{p2-vs.-recomendar-i3}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:cont-p2-recom}Tabla de contingencia: P2 (Presentación) vs. Recomendar (I3)}
+\centering
+\begin{tabular}[t]{lrrr}
+\toprule
+  & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 4 & 0 & 4\\
+2 & 20 & 2 & 22\\
+3 & 39 & 30 & 69\\
+4 & 19 & 39 & 58\\
+5 & 5 & 18 & 23\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{P3 (Frescura) vs.~Variables
+dependientes}\label{p3-frescura-vs.-variables-dependientes}
+
+\subsubsection{P3 vs.~Satisfacción
+(I1)}\label{p3-vs.-satisfacciuxf3n-i1}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:cont-p3-satisf}Tabla de contingencia: P3 (Frescura) vs. Satisfacción (I1)}
+\centering
+\begin{tabular}[t]{lrrrrrr}
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 6 & 0 & 0 & 0 & 8\\
+2 & 1 & 9 & 7 & 10 & 0 & 27\\
+3 & 2 & 12 & 29 & 18 & 2 & 63\\
+4 & 1 & 10 & 8 & 31 & 3 & 53\\
+5 & 0 & 2 & 3 & 15 & 5 & 25\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{P3 vs.~Revisitar (I2)}\label{p3-vs.-revisitar-i2}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:cont-p3-revis}Tabla de contingencia: P3 (Frescura) vs. Revisitar (I2)}
+\centering
+\begin{tabular}[t]{lrrrrrr}
+\toprule
+  & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 4 & 2 & 2 & 0 & 0 & 8\\
+2 & 1 & 11 & 10 & 4 & 1 & 27\\
+3 & 1 & 19 & 24 & 16 & 3 & 63\\
+4 & 2 & 12 & 17 & 17 & 5 & 53\\
+5 & 1 & 1 & 7 & 10 & 6 & 25\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{P3 vs.~Recomendar (I3)}\label{p3-vs.-recomendar-i3}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:cont-p3-recom}Tabla de contingencia: P3 (Frescura) vs. Recomendar (I3)}
+\centering
+\begin{tabular}[t]{lrrr}
+\toprule
+  & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 8 & 0 & 8\\
+2 & 19 & 8 & 27\\
+3 & 34 & 29 & 63\\
+4 & 22 & 31 & 53\\
+5 & 4 & 21 & 25\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+\section{Visualizaciones}\label{visualizaciones}
+
+\subsection{Heatmap de correlaciones}\label{heatmap-de-correlaciones}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{corr\_resultados }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{Item =} \FunctionTok{factor}\NormalTok{(Item, }\AttributeTok{levels =} \FunctionTok{rev}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"P1 (Sabor)"}\NormalTok{, }\StringTok{"P2 (Presentación)"}\NormalTok{, }
+                                        \StringTok{"P3 (Frescura)"}\NormalTok{))),}
+    \AttributeTok{VD   =} \FunctionTok{factor}\NormalTok{(VD, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Satisfacción"}\NormalTok{, }\StringTok{"Revisitar"}\NormalTok{, }\StringTok{"Recomendar"}\NormalTok{))}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ VD, }\AttributeTok{y =}\NormalTok{ Item, }\AttributeTok{fill =}\NormalTok{ rho)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_tile}\NormalTok{(}\AttributeTok{color =} \StringTok{"white"}\NormalTok{, }\AttributeTok{linewidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =} \FunctionTok{format}\NormalTok{(rho, }\AttributeTok{nsmall =} \DecValTok{3}\NormalTok{)), }\AttributeTok{size =} \DecValTok{4}\NormalTok{, }\AttributeTok{fontface =} \StringTok{"bold"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_gradient2}\NormalTok{(}\AttributeTok{low =} \StringTok{"\#d73027"}\NormalTok{, }\AttributeTok{mid =} \StringTok{"\#ffffbf"}\NormalTok{, }\AttributeTok{high =} \StringTok{"\#1a9850"}\NormalTok{,}
+                        \AttributeTok{midpoint =} \DecValTok{0}\NormalTok{, }\AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{),}
+                        \AttributeTok{name =} \FunctionTok{expression}\NormalTok{(rho[s])) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{y =} \ConstantTok{NULL}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{11}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{panel.grid =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{axis.text  =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{10}\NormalTok{),}
+        \AttributeTok{legend.position =} \StringTok{"right"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial_files/figure-latex/heatmap-corr-1} 
+
+}
+
+\caption{Correlaciones de Spearman entre los ítems del Producto (P1, P2, P3) y las variables dependientes.}\label{fig:heatmap-corr}
+\end{figure}
+
+\subsection{Gráfico de mosaico: Ítems del producto
+vs.~Recomendar}\label{gruxe1fico-de-mosaico-uxedtems-del-producto-vs.-recomendar}
+
+Los gráficos de mosaico muestran la proporción de comensales que
+recomendarían (o no) en cada nivel de respuesta del ítem. El ancho de
+cada columna es proporcional a la frecuencia del nivel del ítem, y la
+altura de cada segmento representa la proporción de Sí/No.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(}\AttributeTok{P1 =} \FunctionTok{factor}\NormalTok{(P1), I3\_factor) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(P1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pct =}\NormalTok{ n }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(n)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ P1, }\AttributeTok{y =}\NormalTok{ pct, }\AttributeTok{fill =}\NormalTok{ I3\_factor)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.85}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =} \FunctionTok{paste0}\NormalTok{(}\FunctionTok{round}\NormalTok{(pct }\SpecialCharTok{*} \DecValTok{100}\NormalTok{, }\DecValTok{0}\NormalTok{), }\StringTok{"\%"}\NormalTok{)),}
+            \AttributeTok{position =} \FunctionTok{position\_stack}\NormalTok{(}\AttributeTok{vjust =} \FloatTok{0.5}\NormalTok{), }\AttributeTok{size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"No recomendaría"} \OtherTok{=} \StringTok{"\#e74c3c"}\NormalTok{,}
+                                \StringTok{"Sí recomendaría"} \OtherTok{=} \StringTok{"\#27ae60"}\NormalTok{),}
+                    \AttributeTok{name =} \ConstantTok{NULL}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ scales}\SpecialCharTok{::}\FunctionTok{percent\_format}\NormalTok{()) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"P1 (Sabor)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Proporción"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{10}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"bottom"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial_files/figure-latex/mosaico-p1-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de P1 (Sabor).}\label{fig:mosaico-p1}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(}\AttributeTok{P2 =} \FunctionTok{factor}\NormalTok{(P2), I3\_factor) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(P2) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pct =}\NormalTok{ n }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(n)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ P2, }\AttributeTok{y =}\NormalTok{ pct, }\AttributeTok{fill =}\NormalTok{ I3\_factor)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.85}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =} \FunctionTok{paste0}\NormalTok{(}\FunctionTok{round}\NormalTok{(pct }\SpecialCharTok{*} \DecValTok{100}\NormalTok{, }\DecValTok{0}\NormalTok{), }\StringTok{"\%"}\NormalTok{)),}
+            \AttributeTok{position =} \FunctionTok{position\_stack}\NormalTok{(}\AttributeTok{vjust =} \FloatTok{0.5}\NormalTok{), }\AttributeTok{size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"No recomendaría"} \OtherTok{=} \StringTok{"\#e74c3c"}\NormalTok{,}
+                                \StringTok{"Sí recomendaría"} \OtherTok{=} \StringTok{"\#27ae60"}\NormalTok{),}
+                    \AttributeTok{name =} \ConstantTok{NULL}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ scales}\SpecialCharTok{::}\FunctionTok{percent\_format}\NormalTok{()) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"P2 (Presentación)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Proporción"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{10}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"bottom"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial_files/figure-latex/mosaico-p2-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de P2 (Presentación).}\label{fig:mosaico-p2}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(}\AttributeTok{P3 =} \FunctionTok{factor}\NormalTok{(P3), I3\_factor) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(P3) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pct =}\NormalTok{ n }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(n)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ P3, }\AttributeTok{y =}\NormalTok{ pct, }\AttributeTok{fill =}\NormalTok{ I3\_factor)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.85}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =} \FunctionTok{paste0}\NormalTok{(}\FunctionTok{round}\NormalTok{(pct }\SpecialCharTok{*} \DecValTok{100}\NormalTok{, }\DecValTok{0}\NormalTok{), }\StringTok{"\%"}\NormalTok{)),}
+            \AttributeTok{position =} \FunctionTok{position\_stack}\NormalTok{(}\AttributeTok{vjust =} \FloatTok{0.5}\NormalTok{), }\AttributeTok{size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"No recomendaría"} \OtherTok{=} \StringTok{"\#e74c3c"}\NormalTok{,}
+                                \StringTok{"Sí recomendaría"} \OtherTok{=} \StringTok{"\#27ae60"}\NormalTok{),}
+                    \AttributeTok{name =} \ConstantTok{NULL}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ scales}\SpecialCharTok{::}\FunctionTok{percent\_format}\NormalTok{()) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"P3 (Frescura)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Proporción"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{10}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"bottom"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial_files/figure-latex/mosaico-p3-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de P3 (Frescura).}\label{fig:mosaico-p3}
+\end{figure}
+
+\subsection{Gráfico de dispersión con jitter: Ítems del producto vs.~VD
+continuas}\label{gruxe1fico-de-dispersiuxf3n-con-jitter-uxedtems-del-producto-vs.-vd-continuas}
+
+Para las variables dependientes Likert (Satisfacción y Revisitar), se
+usa un gráfico de dispersión con jitter (desplazamiento aleatorio) y
+línea de tendencia, dado que ambas variables son discretas.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(P1, P2, P3, idx\_satisfaccion) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{pivot\_longer}\NormalTok{(P1}\SpecialCharTok{:}\NormalTok{P3, }\AttributeTok{names\_to =} \StringTok{"Item"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"Puntaje"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Item =} \FunctionTok{case\_match}\NormalTok{(Item,}
+                            \StringTok{"P1"} \SpecialCharTok{\textasciitilde{}} \StringTok{"P1 (Sabor)"}\NormalTok{,}
+                            \StringTok{"P2"} \SpecialCharTok{\textasciitilde{}} \StringTok{"P2 (Presentación)"}\NormalTok{,}
+                            \StringTok{"P3"} \SpecialCharTok{\textasciitilde{}} \StringTok{"P3 (Frescura)"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Puntaje, }\AttributeTok{y =}\NormalTok{ idx\_satisfaccion)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_jitter}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.2}\NormalTok{, }\AttributeTok{height =} \FloatTok{0.2}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.4}\NormalTok{, }\AttributeTok{color =} \StringTok{"\#2c7fb8"}\NormalTok{, }\AttributeTok{size =} \FloatTok{1.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{, }\AttributeTok{se =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{color =} \StringTok{"\#e74c3c"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.7}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{Item) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Puntaje del ítem"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Satisfacción (I1)"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial_files/figure-latex/jitter-satisf-1} 
+
+}
+
+\caption{Relación entre cada ítem del Producto y la Satisfacción (I1). La línea muestra la tendencia suavizada.}\label{fig:jitter-satisf}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(P1, P2, P3, idx\_revisitar) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{pivot\_longer}\NormalTok{(P1}\SpecialCharTok{:}\NormalTok{P3, }\AttributeTok{names\_to =} \StringTok{"Item"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"Puntaje"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Item =} \FunctionTok{case\_match}\NormalTok{(Item,}
+                            \StringTok{"P1"} \SpecialCharTok{\textasciitilde{}} \StringTok{"P1 (Sabor)"}\NormalTok{,}
+                            \StringTok{"P2"} \SpecialCharTok{\textasciitilde{}} \StringTok{"P2 (Presentación)"}\NormalTok{,}
+                            \StringTok{"P3"} \SpecialCharTok{\textasciitilde{}} \StringTok{"P3 (Frescura)"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Puntaje, }\AttributeTok{y =}\NormalTok{ idx\_revisitar)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_jitter}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.2}\NormalTok{, }\AttributeTok{height =} \FloatTok{0.2}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.4}\NormalTok{, }\AttributeTok{color =} \StringTok{"\#2c7fb8"}\NormalTok{, }\AttributeTok{size =} \FloatTok{1.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{, }\AttributeTok{se =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{color =} \StringTok{"\#e74c3c"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.7}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{Item) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Puntaje del ítem"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Revisitar (I2)"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial_files/figure-latex/jitter-revisitar-1} 
+
+}
+
+\caption{Relación entre cada ítem del Producto y la Intención de revisitar (I2). La línea muestra la tendencia suavizada.}\label{fig:jitter-revisitar}
+\end{figure}
+
+\newpage
+
+\section{Resumen del Objetivo 4}\label{resumen-del-objetivo-4}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:resumen-obj4-print}Ranking de influencia de los ítems del Producto sobre las VD}
+\centering
+\begin{tabular}[t]{clc}
+\toprule
+Ranking & Ítem Producto & $|\rho_s|$ promedio\\
+\midrule
+1 & P1 (Sabor) & 0.540\\
+2 & P2 (Presentación) & 0.478\\
+3 & P3 (Frescura) & 0.376\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El factor sensorial más influyente en la toma de decisiones del comensal
+es \textbf{P1 (Sabor)}, con un coeficiente de correlación de Spearman
+promedio (en valor absoluto) de \(|\rho_s| =\) 0.54. Esto se sustenta
+tanto en las correlaciones bivariadas como en los patrones observados en
+las tablas de contingencia y los gráficos, donde se aprecia una relación
+monotónica más pronunciada entre este ítem y las tres variables
+dependientes.
+
+\section{Exportación de gráficos y
+tablas}\label{exportaciuxf3n-de-gruxe1ficos-y-tablas}
+
+\begin{verbatim}
+#> pdf 
+#>   2
+\end{verbatim}
+
+\begin{verbatim}
+#> pdf 
+#>   2
+\end{verbatim}
+
+\end{document}

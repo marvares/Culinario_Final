@@ -1,0 +1,1321 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+  spanish,
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+Factor Sensorial}
+\fancyhead[R]{\small Tesis --- Experiencia Gastronómica}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+\usepackage{indentfirst}
+\setlength{\parindent}{1.25cm}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Objetivo 4: Factor Sensorial Más Influyente},
+  pdfauthor={Ariana-Fernanda Valeria Vidal Tapia},
+  pdflang={es},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Objetivo 4: Factor Sensorial Más Influyente}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Impacto de los factores de la experiencia gastronómica en la
+toma de decisiones del comensal}
+\author{Ariana-Fernanda Valeria Vidal Tapia}
+\date{16 de April de 2026}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\section{Carga de datos y
+librerías}\label{carga-de-datos-y-libreruxedas}
+
+El objetivo específico 4 busca identificar cuál de los factores
+sensoriales dentro de cada dimensión --- Producto (P1, P2, P3), Servicio
+(S1, S2, S3) y Entorno (E1--E8) --- es el más influyente en la toma de
+decisiones del comensal, medida a través de tres variables dependientes:
+satisfacción (I1, Likert 1--5), intención de revisitar (I2, Likert 1--5)
+e intención de recomendar (I3, binaria Sí/No).
+
+Para cada dimensión se presentan: correlaciones de Spearman con ranking
+de influencia, tablas de contingencia, y visualizaciones (heatmap,
+barras apiladas y dispersión con jitter).
+
+\section{Tablas de puntajes promedio por
+condición}\label{tablas-de-puntajes-promedio-por-condiciuxf3n}
+
+\begin{longtable}[t]{lccc}
+\caption{\label{tab:tabla-calidad-producto}Calidad de Producto}\\
+\toprule
+Condición & P1 (Sabor) & P2 (Presentación) & P3 (Frescura)\\
+\midrule
+Base (todo bien) & 3.61 & 3.89 & 3.80\\
+Servicio degradado & 3.09 & 3.70 & 3.52\\
+Producto degradado & 2.36 & 3.07 & 2.73\\
+Entorno degradado & 3.11 & 3.02 & 3.32\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lccc}
+\caption{\label{tab:tabla-calidad-servicio}Calidad del Servicio}\\
+\toprule
+Condición & S1 (Atención) & S2 (Confianza) & S3 (Apariencia)\\
+\midrule
+Base (todo bien) & 4.39 & 4.16 & 4.36\\
+Servicio degradado & 2.80 & 2.91 & 3.61\\
+Producto degradado & 4.30 & 4.34 & 4.34\\
+Entorno degradado & 3.82 & 3.82 & 4.20\\
+\bottomrule
+\end{longtable}
+
+\begingroup\fontsize{9}{11}\selectfont
+
+\begin{longtable}[t]{lcccccccc}
+\caption{\label{tab:tabla-calidad-entorno}Calidad del Entorno}\\
+\toprule
+Condición & E1 (Decoración) & E2 (Colores) & E3 (Mobiliario) & E4 (Menaje) & E5 (Manteles) & E6 (Espacio) & E7 (Asientos) & E8 (Música)\\
+\midrule
+Base (todo bien) & 4.70 & 4.45 & 3.95 & 3.98 & 4.30 & 4.52 & 4.25 & 4.45\\
+Servicio degradado & 4.36 & 4.32 & 3.66 & 3.86 & 4.16 & 4.36 & 4.36 & 3.75\\
+Producto degradado & 4.41 & 4.39 & 3.73 & 3.89 & 4.16 & 4.34 & 4.39 & 4.02\\
+Entorno degradado & 2.30 & 2.32 & 2.64 & 3.11 & 3.30 & 1.82 & 1.59 & 1.27\\
+\bottomrule
+\end{longtable}
+\endgroup{}
+
+\newpage
+
+\section{Análisis por ítems de Producto: P1, P2, P3 vs.~variables
+dependientes}\label{anuxe1lisis-por-uxedtems-de-producto-p1-p2-p3-vs.-variables-dependientes}
+
+\subsection{Correlaciones de Spearman}\label{correlaciones-de-spearman}
+
+Se calcula el coeficiente de correlación de Spearman (\(\rho_s\)) entre
+cada ítem del producto y cada variable dependiente.
+
+\begin{longtable}[t]{llcc>{}c}
+\toprule
+Ítem Producto & Variable dependiente & \$\textbackslash{}rho\_s\$ & \$p\$ & Significativo\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{P1 (Sabor)}}\\
+\hspace{1em}P1 (Sabor) & Satisfacción & 0.586 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P1 (Sabor) & Revisitar & 0.550 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P1 (Sabor) & Recomendar & 0.484 & < .001 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{P2 (Presentación)}}\\
+\hspace{1em}P2 (Presentación) & Satisfacción & 0.490 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P2 (Presentación) & Revisitar & 0.517 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P2 (Presentación) & Recomendar & 0.427 & < .001 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{P3 (Frescura)}}\\
+\hspace{1em}P3 (Frescura) & Satisfacción & 0.414 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P3 (Frescura) & Revisitar & 0.351 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}P3 (Frescura) & Recomendar & 0.364 & < .001 & \textcolor{teal}{Sí}\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{Ranking de influencia
+(Producto)}\label{ranking-de-influencia-producto}
+
+\begin{longtable}[t]{clc}
+\toprule
+Ranking & Ítem Producto & \$\&\#124;\textbackslash{}rho\_s\&\#124;\$ promedio\\
+\midrule
+1 & P1 (Sabor) & 0.540\\
+2 & P2 (Presentación) & 0.478\\
+3 & P3 (Frescura) & 0.376\\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\subsection{Tablas de contingencia
+(Producto)}\label{tablas-de-contingencia-producto}
+
+\subsubsection{P1 (Sabor) vs.~Variables
+dependientes}\label{p1-sabor-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-p1-satisf}P1 (Sabor) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 3 & 6 & 1 & 0 & 0 & 10\\
+2 & 2 & 21 & 12 & 4 & 0 & 39\\
+3 & 1 & 7 & 25 & 37 & 0 & 70\\
+4 & 0 & 3 & 7 & 29 & 8 & 47\\
+5 & 0 & 2 & 2 & 4 & 2 & 10\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-p1-revis}P1 (Sabor) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 5 & 4 & 1 & 0 & 0 & 10\\
+2 & 2 & 23 & 13 & 1 & 0 & 39\\
+3 & 1 & 10 & 34 & 23 & 2 & 70\\
+4 & 0 & 7 & 8 & 22 & 10 & 47\\
+5 & 1 & 1 & 4 & 1 & 3 & 10\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-p1-recom}P1 (Sabor) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 10 & 0 & 10\\
+2 & 33 & 6 & 39\\
+3 & 30 & 40 & 70\\
+4 & 12 & 35 & 47\\
+5 & 2 & 8 & 10\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{P2 (Presentación) vs.~Variables
+dependientes}\label{p2-presentaciuxf3n-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-p2-satisf}P2 (Presentación) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 0 & 4 & 0 & 0 & 0 & 4\\
+2 & 4 & 8 & 9 & 1 & 0 & 22\\
+3 & 1 & 18 & 24 & 25 & 1 & 69\\
+4 & 1 & 6 & 11 & 36 & 4 & 58\\
+5 & 0 & 3 & 3 & 12 & 5 & 23\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-p2-revis}P2 (Presentación) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 2 & 0 & 0 & 0 & 4\\
+2 & 4 & 13 & 5 & 0 & 0 & 22\\
+3 & 1 & 23 & 26 & 18 & 1 & 69\\
+4 & 1 & 6 & 22 & 21 & 8 & 58\\
+5 & 1 & 1 & 7 & 8 & 6 & 23\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-p2-recom}P2 (Presentación) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 4 & 0 & 4\\
+2 & 20 & 2 & 22\\
+3 & 39 & 30 & 69\\
+4 & 19 & 39 & 58\\
+5 & 5 & 18 & 23\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{P3 (Frescura) vs.~Variables
+dependientes}\label{p3-frescura-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-p3-satisf}P3 (Frescura) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 6 & 0 & 0 & 0 & 8\\
+2 & 1 & 9 & 7 & 10 & 0 & 27\\
+3 & 2 & 12 & 29 & 18 & 2 & 63\\
+4 & 1 & 10 & 8 & 31 & 3 & 53\\
+5 & 0 & 2 & 3 & 15 & 5 & 25\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-p3-revis}P3 (Frescura) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 4 & 2 & 2 & 0 & 0 & 8\\
+2 & 1 & 11 & 10 & 4 & 1 & 27\\
+3 & 1 & 19 & 24 & 16 & 3 & 63\\
+4 & 2 & 12 & 17 & 17 & 5 & 53\\
+5 & 1 & 1 & 7 & 10 & 6 & 25\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-p3-recom}P3 (Frescura) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 8 & 0 & 8\\
+2 & 19 & 8 & 27\\
+3 & 34 & 29 & 63\\
+4 & 22 & 31 & 53\\
+5 & 4 & 21 & 25\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\subsection{Visualizaciones (Producto)}\label{visualizaciones-producto}
+
+\subsubsection{Heatmap de correlaciones}\label{heatmap-de-correlaciones}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/heatmap-corr-1} 
+
+}
+
+\caption{Correlaciones de Spearman entre los ítems del Producto y las variables dependientes.}\label{fig:heatmap-corr}
+\end{figure}
+
+\subsubsection{Proporción de Recomendar por nivel de cada
+ítem}\label{proporciuxf3n-de-recomendar-por-nivel-de-cada-uxedtem}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/mosaico-p1-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de P1 (Sabor).}\label{fig:mosaico-p1}
+\end{figure}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/mosaico-p2-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de P2 (Presentación).}\label{fig:mosaico-p2}
+\end{figure}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/mosaico-p3-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de P3 (Frescura).}\label{fig:mosaico-p3}
+\end{figure}
+
+\subsubsection{Dispersión con jitter: Ítems del producto
+vs.~Satisfacción}\label{dispersiuxf3n-con-jitter-uxedtems-del-producto-vs.-satisfacciuxf3n}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/jitter-satisf-1} 
+
+}
+
+\caption{Relación entre cada ítem del Producto y la Satisfacción (I1).}\label{fig:jitter-satisf}
+\end{figure}
+
+\subsubsection{Dispersión con jitter: Ítems del producto
+vs.~Revisitar}\label{dispersiuxf3n-con-jitter-uxedtems-del-producto-vs.-revisitar}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/jitter-revisitar-1} 
+
+}
+
+\caption{Relación entre cada ítem del Producto y la Intención de revisitar (I2).}\label{fig:jitter-revisitar}
+\end{figure}
+
+\subsubsection{Resumen (Producto)}\label{resumen-producto}
+
+El ítem de producto más influyente en la toma de decisiones del comensal
+es \textbf{P1 (Sabor)}, con \(|\rho_s|\) promedio = 0.54.
+
+\newpage
+
+\section{Análisis por ítems de Servicio: S1, S2, S3 vs.~variables
+dependientes}\label{anuxe1lisis-por-uxedtems-de-servicio-s1-s2-s3-vs.-variables-dependientes}
+
+\subsection{Correlaciones de
+Spearman}\label{correlaciones-de-spearman-1}
+
+\begin{longtable}[t]{llcc>{}c}
+\toprule
+Ítem Servicio & Variable dependiente & \$\textbackslash{}rho\_s\$ & \$p\$ & Significativo\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{S1 (Atención)}}\\
+\hspace{1em}S1 (Atención) & Satisfacción & 0.341 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}S1 (Atención) & Revisitar & 0.273 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}S1 (Atención) & Recomendar & 0.286 & < .001 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{S2 (Confianza)}}\\
+\hspace{1em}S2 (Confianza) & Satisfacción & 0.250 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}S2 (Confianza) & Revisitar & 0.199 & 0.0081 & \textcolor{teal}{Sí}\\
+\hspace{1em}S2 (Confianza) & Recomendar & 0.235 & 0.0017 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{S3 (Apariencia)}}\\
+\hspace{1em}S3 (Apariencia) & Satisfacción & 0.300 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}S3 (Apariencia) & Revisitar & 0.198 & 0.0086 & \textcolor{teal}{Sí}\\
+\hspace{1em}S3 (Apariencia) & Recomendar & 0.118 & 0.1176 & \textcolor{red}{No}\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{Ranking de influencia
+(Servicio)}\label{ranking-de-influencia-servicio}
+
+\begin{longtable}[t]{clc}
+\toprule
+Ranking & Ítem Servicio & \$\&\#124;\textbackslash{}rho\_s\&\#124;\$ promedio\\
+\midrule
+1 & S1 (Atención) & 0.300\\
+2 & S2 (Confianza) & 0.228\\
+3 & S3 (Apariencia) & 0.205\\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\subsection{Tablas de contingencia
+(Servicio)}\label{tablas-de-contingencia-servicio}
+
+\subsubsection{S1 (Atención) vs.~Variables
+dependientes}\label{s1-atenciuxf3n-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-s1-satisf}S1 (Atención) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 1 & 2 & 2 & 0 & 0 & 5\\
+2 & 0 & 7 & 9 & 6 & 0 & 22\\
+3 & 1 & 11 & 7 & 12 & 0 & 31\\
+4 & 2 & 15 & 16 & 23 & 3 & 59\\
+5 & 2 & 4 & 13 & 33 & 7 & 59\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-s1-revis}S1 (Atención) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 1 & 1 & 1 & 0 & 5\\
+2 & 0 & 9 & 9 & 4 & 0 & 22\\
+3 & 2 & 10 & 9 & 9 & 1 & 31\\
+4 & 4 & 17 & 19 & 15 & 4 & 59\\
+5 & 1 & 8 & 22 & 18 & 10 & 59\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-s1-recom}S1 (Atención) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 4 & 1 & 5\\
+2 & 14 & 8 & 22\\
+3 & 20 & 11 & 31\\
+4 & 31 & 28 & 59\\
+5 & 18 & 41 & 59\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{S2 (Confianza) vs.~Variables
+dependientes}\label{s2-confianza-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-s2-satisf}S2 (Confianza) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 1 & 2 & 1 & 1 & 0 & 5\\
+2 & 0 & 8 & 6 & 4 & 0 & 18\\
+3 & 1 & 9 & 13 & 18 & 0 & 41\\
+4 & 3 & 11 & 14 & 22 & 4 & 54\\
+5 & 1 & 9 & 13 & 29 & 6 & 58\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-s2-revis}S2 (Confianza) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 2 & 0 & 1 & 0 & 5\\
+2 & 0 & 8 & 7 & 3 & 0 & 18\\
+3 & 2 & 11 & 14 & 11 & 3 & 41\\
+4 & 4 & 13 & 16 & 18 & 3 & 54\\
+5 & 1 & 11 & 23 & 14 & 9 & 58\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-s2-recom}S2 (Confianza) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 4 & 1 & 5\\
+2 & 11 & 7 & 18\\
+3 & 25 & 16 & 41\\
+4 & 27 & 27 & 54\\
+5 & 20 & 38 & 58\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{S3 (Apariencia) vs.~Variables
+dependientes}\label{s3-apariencia-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-s3-satisf}S3 (Apariencia) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 1 & 0 & 1 & 0 & 0 & 2\\
+2 & 1 & 1 & 4 & 2 & 0 & 8\\
+3 & 1 & 11 & 8 & 6 & 1 & 27\\
+4 & 2 & 15 & 21 & 27 & 2 & 67\\
+5 & 1 & 12 & 13 & 39 & 7 & 72\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-s3-revis}S3 (Apariencia) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 1 & 0 & 0 & 1 & 0 & 2\\
+2 & 2 & 1 & 3 & 2 & 0 & 8\\
+3 & 1 & 12 & 9 & 5 & 0 & 27\\
+4 & 3 & 17 & 22 & 20 & 5 & 67\\
+5 & 2 & 15 & 26 & 19 & 10 & 72\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-s3-recom}S3 (Apariencia) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 1 & 1 & 2\\
+2 & 4 & 4 & 8\\
+3 & 17 & 10 & 27\\
+4 & 34 & 33 & 67\\
+5 & 31 & 41 & 72\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\subsection{Visualizaciones (Servicio)}\label{visualizaciones-servicio}
+
+\subsubsection{Heatmap de
+correlaciones}\label{heatmap-de-correlaciones-1}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/heatmap-serv-1} 
+
+}
+
+\caption{Correlaciones de Spearman entre los ítems del Servicio y las variables dependientes.}\label{fig:heatmap-serv}
+\end{figure}
+
+\subsubsection{Proporción de Recomendar por nivel de cada
+ítem}\label{proporciuxf3n-de-recomendar-por-nivel-de-cada-uxedtem-1}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/mosaico-s1-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de S1 (Atención).}\label{fig:mosaico-s1}
+\end{figure}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/mosaico-s2-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de S2 (Confianza).}\label{fig:mosaico-s2}
+\end{figure}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/mosaico-s3-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de S3 (Apariencia).}\label{fig:mosaico-s3}
+\end{figure}
+
+\subsubsection{Dispersión con jitter: Ítems del servicio
+vs.~Satisfacción}\label{dispersiuxf3n-con-jitter-uxedtems-del-servicio-vs.-satisfacciuxf3n}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/jitter-satisf-serv-1} 
+
+}
+
+\caption{Relación entre cada ítem del Servicio y la Satisfacción (I1).}\label{fig:jitter-satisf-serv}
+\end{figure}
+
+\subsubsection{Dispersión con jitter: Ítems del servicio
+vs.~Revisitar}\label{dispersiuxf3n-con-jitter-uxedtems-del-servicio-vs.-revisitar}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/jitter-revis-serv-1} 
+
+}
+
+\caption{Relación entre cada ítem del Servicio y la Intención de revisitar (I2).}\label{fig:jitter-revis-serv}
+\end{figure}
+
+\subsubsection{Resumen (Servicio)}\label{resumen-servicio}
+
+El ítem de servicio más influyente en la toma de decisiones del comensal
+es \textbf{S1 (Atención)}, con \(|\rho_s|\) promedio = 0.3.
+
+\newpage
+
+\section{Análisis por ítems de Entorno: E1--E8 vs.~variables
+dependientes}\label{anuxe1lisis-por-uxedtems-de-entorno-e1e8-vs.-variables-dependientes}
+
+\subsection{Correlaciones de
+Spearman}\label{correlaciones-de-spearman-2}
+
+\begingroup\fontsize{9}{11}\selectfont
+
+\begin{longtable}[t]{llcc>{}c}
+\toprule
+Ítem Entorno & Variable dependiente & \$\textbackslash{}rho\_s\$ & \$p\$ & Significativo\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{E1 (Decoración)}}\\
+\hspace{1em}E1 (Decoración) & Satisfacción & 0.400 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E1 (Decoración) & Revisitar & 0.440 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E1 (Decoración) & Recomendar & 0.329 & < .001 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{E2 (Colores)}}\\
+\hspace{1em}E2 (Colores) & Satisfacción & 0.306 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E2 (Colores) & Revisitar & 0.368 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E2 (Colores) & Recomendar & 0.310 & < .001 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{E3 (Mobiliario)}}\\
+\hspace{1em}E3 (Mobiliario) & Satisfacción & 0.252 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E3 (Mobiliario) & Revisitar & 0.372 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E3 (Mobiliario) & Recomendar & 0.263 & < .001 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{E4 (Menaje)}}\\
+\hspace{1em}E4 (Menaje) & Satisfacción & 0.232 & 0.0020 & \textcolor{teal}{Sí}\\
+\hspace{1em}E4 (Menaje) & Revisitar & 0.292 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E4 (Menaje) & Recomendar & 0.190 & 0.0116 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{E5 (Manteles)}}\\
+\hspace{1em}E5 (Manteles) & Satisfacción & 0.161 & 0.0326 & \textcolor{teal}{Sí}\\
+\hspace{1em}E5 (Manteles) & Revisitar & 0.244 & 0.0011 & \textcolor{teal}{Sí}\\
+\hspace{1em}E5 (Manteles) & Recomendar & 0.177 & 0.0190 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{E6 (Espacio)}}\\
+\hspace{1em}E6 (Espacio) & Satisfacción & 0.333 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E6 (Espacio) & Revisitar & 0.376 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E6 (Espacio) & Recomendar & 0.242 & 0.0012 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{E7 (Asientos)}}\\
+\hspace{1em}E7 (Asientos) & Satisfacción & 0.273 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E7 (Asientos) & Revisitar & 0.274 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E7 (Asientos) & Recomendar & 0.199 & 0.0080 & \textcolor{teal}{Sí}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\textbf{E8 (Música)}}\\
+\hspace{1em}E8 (Música) & Satisfacción & 0.364 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E8 (Música) & Revisitar & 0.374 & < .001 & \textcolor{teal}{Sí}\\
+\hspace{1em}E8 (Música) & Recomendar & 0.284 & < .001 & \textcolor{teal}{Sí}\\
+\bottomrule
+\end{longtable}
+\endgroup{}
+
+\subsubsection{Ranking de influencia
+(Entorno)}\label{ranking-de-influencia-entorno}
+
+\begin{longtable}[t]{clc}
+\toprule
+Ranking & Ítem Entorno & \$\&\#124;\textbackslash{}rho\_s\&\#124;\$ promedio\\
+\midrule
+1 & E1 (Decoración) & 0.390\\
+2 & E8 (Música) & 0.341\\
+3 & E2 (Colores) & 0.328\\
+4 & E6 (Espacio) & 0.317\\
+5 & E3 (Mobiliario) & 0.296\\
+\addlinespace
+6 & E7 (Asientos) & 0.249\\
+7 & E4 (Menaje) & 0.238\\
+8 & E5 (Manteles) & 0.194\\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\subsection{Tablas de contingencia
+(Entorno)}\label{tablas-de-contingencia-entorno}
+
+\subsubsection{E1 (Decoración) vs.~Variables
+dependientes}\label{e1-decoraciuxf3n-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e1-satisf}E1 (Decoración) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 4 & 5 & 0 & 0 & 11\\
+2 & 0 & 7 & 4 & 5 & 0 & 16\\
+3 & 0 & 10 & 4 & 5 & 1 & 20\\
+4 & 2 & 10 & 19 & 23 & 0 & 54\\
+5 & 2 & 8 & 15 & 41 & 9 & 75\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e1-revis}E1 (Decoración) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 1 & 7 & 3 & 0 & 0 & 11\\
+2 & 2 & 9 & 3 & 2 & 0 & 16\\
+3 & 1 & 8 & 6 & 5 & 0 & 20\\
+4 & 3 & 11 & 26 & 12 & 2 & 54\\
+5 & 2 & 10 & 22 & 28 & 13 & 75\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-e1-recom}E1 (Decoración) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 9 & 2 & 11\\
+2 & 12 & 4 & 16\\
+3 & 12 & 8 & 20\\
+4 & 30 & 24 & 54\\
+5 & 24 & 51 & 75\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{E2 (Colores) vs.~Variables
+dependientes}\label{e2-colores-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e2-satisf}E2 (Colores) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 1 & 4 & 7 & 1 & 0 & 13\\
+2 & 1 & 6 & 2 & 4 & 0 & 13\\
+3 & 0 & 7 & 4 & 7 & 1 & 19\\
+4 & 2 & 14 & 23 & 28 & 3 & 70\\
+5 & 2 & 8 & 11 & 34 & 6 & 61\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e2-revis}E2 (Colores) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 7 & 4 & 0 & 0 & 13\\
+2 & 1 & 7 & 3 & 2 & 0 & 13\\
+3 & 0 & 8 & 7 & 3 & 1 & 19\\
+4 & 3 & 17 & 25 & 20 & 5 & 70\\
+5 & 3 & 6 & 21 & 22 & 9 & 61\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-e2-recom}E2 (Colores) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 11 & 2 & 13\\
+2 & 10 & 3 & 13\\
+3 & 10 & 9 & 19\\
+4 & 37 & 33 & 70\\
+5 & 19 & 42 & 61\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{E3 (Mobiliario) vs.~Variables
+dependientes}\label{e3-mobiliario-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e3-satisf}E3 (Mobiliario) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 0 & 2 & 2 & 0 & 0 & 4\\
+2 & 2 & 10 & 8 & 8 & 0 & 28\\
+3 & 2 & 12 & 15 & 23 & 1 & 53\\
+4 & 2 & 9 & 14 & 28 & 6 & 59\\
+5 & 0 & 6 & 8 & 15 & 3 & 32\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e3-revis}E3 (Mobiliario) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 0 & 4 & 0 & 0 & 0 & 4\\
+2 & 2 & 11 & 12 & 3 & 0 & 28\\
+3 & 3 & 16 & 21 & 12 & 1 & 53\\
+4 & 3 & 8 & 20 & 23 & 5 & 59\\
+5 & 1 & 6 & 7 & 9 & 9 & 32\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-e3-recom}E3 (Mobiliario) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 3 & 1 & 4\\
+2 & 20 & 8 & 28\\
+3 & 29 & 24 & 53\\
+4 & 25 & 34 & 59\\
+5 & 10 & 22 & 32\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{E4 (Menaje) vs.~Variables
+dependientes}\label{e4-menaje-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e4-satisf}E4 (Menaje) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 0 & 1 & 1 & 0 & 0 & 2\\
+2 & 1 & 7 & 5 & 9 & 0 & 22\\
+3 & 1 & 13 & 13 & 14 & 1 & 42\\
+4 & 3 & 13 & 18 & 32 & 3 & 69\\
+5 & 1 & 5 & 10 & 19 & 6 & 41\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e4-revis}E4 (Menaje) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 0 & 2 & 0 & 0 & 0 & 2\\
+2 & 3 & 7 & 7 & 4 & 1 & 22\\
+3 & 1 & 14 & 17 & 10 & 0 & 42\\
+4 & 4 & 17 & 22 & 22 & 4 & 69\\
+5 & 1 & 5 & 14 & 11 & 10 & 41\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-e4-recom}E4 (Menaje) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 2 & 0 & 2\\
+2 & 13 & 9 & 22\\
+3 & 23 & 19 & 42\\
+4 & 36 & 33 & 69\\
+5 & 13 & 28 & 41\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{E5 (Manteles) vs.~Variables
+dependientes}\label{e5-manteles-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e5-satisf}E5 (Manteles) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 0 & 1 & 1 & 0 & 0 & 2\\
+2 & 0 & 4 & 3 & 5 & 0 & 12\\
+3 & 1 & 12 & 6 & 10 & 1 & 30\\
+4 & 4 & 12 & 20 & 38 & 2 & 76\\
+5 & 1 & 10 & 17 & 21 & 7 & 56\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e5-revis}E5 (Manteles) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 0 & 2 & 0 & 0 & 0 & 2\\
+2 & 1 & 3 & 5 & 3 & 0 & 12\\
+3 & 2 & 11 & 10 & 6 & 1 & 30\\
+4 & 5 & 17 & 30 & 20 & 4 & 76\\
+5 & 1 & 12 & 15 & 18 & 10 & 56\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-e5-recom}E5 (Manteles) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 1 & 1 & 2\\
+2 & 7 & 5 & 12\\
+3 & 19 & 11 & 30\\
+4 & 39 & 37 & 76\\
+5 & 21 & 35 & 56\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{E6 (Espacio) vs.~Variables
+dependientes}\label{e6-espacio-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e6-satisf}E6 (Espacio) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 13 & 4 & 6 & 0 & 25\\
+2 & 0 & 3 & 8 & 2 & 0 & 13\\
+3 & 0 & 6 & 4 & 8 & 0 & 18\\
+4 & 2 & 7 & 13 & 19 & 2 & 43\\
+5 & 2 & 10 & 18 & 39 & 8 & 77\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e6-revis}E6 (Espacio) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 3 & 15 & 5 & 2 & 0 & 25\\
+2 & 0 & 5 & 7 & 1 & 0 & 13\\
+3 & 2 & 4 & 7 & 5 & 0 & 18\\
+4 & 2 & 8 & 16 & 14 & 3 & 43\\
+5 & 2 & 13 & 25 & 25 & 12 & 77\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-e6-recom}E6 (Espacio) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 20 & 5 & 25\\
+2 & 8 & 5 & 13\\
+3 & 10 & 8 & 18\\
+4 & 18 & 25 & 43\\
+5 & 31 & 46 & 77\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{E7 (Asientos) vs.~Variables
+dependientes}\label{e7-asientos-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e7-satisf}E7 (Asientos) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 1 & 13 & 7 & 5 & 0 & 26\\
+2 & 1 & 3 & 6 & 8 & 0 & 18\\
+3 & 0 & 5 & 4 & 8 & 1 & 18\\
+4 & 3 & 8 & 11 & 21 & 1 & 44\\
+5 & 1 & 10 & 19 & 32 & 8 & 70\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e7-revis}E7 (Asientos) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 3 & 14 & 6 & 3 & 0 & 26\\
+2 & 0 & 6 & 7 & 5 & 0 & 18\\
+3 & 1 & 4 & 7 & 5 & 1 & 18\\
+4 & 3 & 9 & 13 & 14 & 5 & 44\\
+5 & 2 & 12 & 27 & 20 & 9 & 70\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-e7-recom}E7 (Asientos) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 20 & 6 & 26\\
+2 & 10 & 8 & 18\\
+3 & 8 & 10 & 18\\
+4 & 20 & 24 & 44\\
+5 & 29 & 41 & 70\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\subsubsection{E8 (Música) vs.~Variables
+dependientes}\label{e8-muxfasica-vs.-variables-dependientes}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e8-satisf}E8 (Música) vs. Satisfacción (I1)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 2 & 12 & 16 & 6 & 0 & 36\\
+2 & 1 & 6 & 2 & 6 & 0 & 15\\
+3 & 0 & 5 & 9 & 11 & 2 & 27\\
+4 & 3 & 10 & 9 & 20 & 1 & 43\\
+5 & 0 & 6 & 11 & 31 & 7 & 55\\
+\addlinespace
+Sum & 6 & 39 & 47 & 74 & 10 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrrrrr}
+\caption{\label{tab:cont-e8-revis}E8 (Música) vs. Revisitar (I2)}\\
+\toprule
+ & 1 & 2 & 3 & 4 & 5 & Sum\\
+\midrule
+1 & 3 & 18 & 11 & 4 & 0 & 36\\
+2 & 2 & 4 & 4 & 5 & 0 & 15\\
+3 & 0 & 7 & 11 & 8 & 1 & 27\\
+4 & 4 & 9 & 13 & 15 & 2 & 43\\
+5 & 0 & 7 & 21 & 15 & 12 & 55\\
+\addlinespace
+Sum & 9 & 45 & 60 & 47 & 15 & 176\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:cont-e8-recom}E8 (Música) vs. Recomendar (I3)}\\
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+1 & 28 & 8 & 36\\
+2 & 8 & 7 & 15\\
+3 & 11 & 16 & 27\\
+4 & 22 & 21 & 43\\
+5 & 18 & 37 & 55\\
+\addlinespace
+Sum & 87 & 89 & 176\\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\subsection{Visualizaciones (Entorno)}\label{visualizaciones-entorno}
+
+\subsubsection{Heatmap de
+correlaciones}\label{heatmap-de-correlaciones-2}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/heatmap-ent-1} 
+
+}
+
+\caption{Correlaciones de Spearman entre los ítems del Entorno y las variables dependientes.}\label{fig:heatmap-ent}
+\end{figure}
+
+\subsubsection{Proporción de Recomendar por nivel de cada ítem del
+Entorno}\label{proporciuxf3n-de-recomendar-por-nivel-de-cada-uxedtem-del-entorno}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/mosaico-ent-all-1} 
+
+}
+
+\caption{Proporción de Recomendar por nivel de cada ítem del Entorno.}\label{fig:mosaico-ent-all}
+\end{figure}
+
+\subsubsection{Dispersión con jitter: Ítems del entorno
+vs.~Satisfacción}\label{dispersiuxf3n-con-jitter-uxedtems-del-entorno-vs.-satisfacciuxf3n}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/jitter-satisf-ent-1} 
+
+}
+
+\caption{Relación entre cada ítem del Entorno y la Satisfacción (I1).}\label{fig:jitter-satisf-ent}
+\end{figure}
+
+\subsubsection{Dispersión con jitter: Ítems del entorno
+vs.~Revisitar}\label{dispersiuxf3n-con-jitter-uxedtems-del-entorno-vs.-revisitar}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{03_objetivo4_factor_sensorial-06-_files/figure-latex/jitter-revis-ent-1} 
+
+}
+
+\caption{Relación entre cada ítem del Entorno y la Intención de revisitar (I2).}\label{fig:jitter-revis-ent}
+\end{figure}
+
+\subsubsection{Resumen (Entorno)}\label{resumen-entorno}
+
+El ítem de entorno más influyente en la toma de decisiones del comensal
+es \textbf{E1 (Decoración)}, con \(|\rho_s|\) promedio = 0.39.
+
+\newpage
+
+\section{Resumen general del Objetivo
+4}\label{resumen-general-del-objetivo-4}
+
+\subsection{Conclusión --- Dimensión
+Producto}\label{conclusiuxf3n-dimensiuxf3n-producto}
+
+Dentro de la dimensión Producto, el ítem más influyente es \textbf{P1
+(Sabor)} (\(|\rho_s|\) promedio = 0.54), mientras que el de menor
+influencia es \textbf{P3 (Frescura)} (\(|\rho_s|\) promedio = 0.376).
+Las tablas de contingencia y los gráficos de barras apiladas confirman
+que a mayor puntaje en los ítems de producto, la proporción de
+comensales dispuestos a recomendar el establecimiento aumenta de forma
+consistente. Los gráficos de dispersión muestran una relación positiva
+entre los tres ítems y las variables de satisfacción y revisita.
+
+\subsection{Conclusión --- Dimensión
+Servicio}\label{conclusiuxf3n-dimensiuxf3n-servicio}
+
+Dentro de la dimensión Servicio, el ítem más influyente es \textbf{S1
+(Atención)} (\(|\rho_s|\) promedio = 0.3), y el de menor influencia es
+\textbf{S3 (Apariencia)} (\(|\rho_s|\) promedio = 0.205). Los patrones
+observados en las tablas de contingencia y en los gráficos de mosaico
+son coherentes con los resultados de las correlaciones: los niveles más
+altos de percepción de servicio se asocian con mayor proporción de
+recomendación y con puntajes más elevados de satisfacción y revisita.
+
+\subsection{Conclusión --- Dimensión
+Entorno}\label{conclusiuxf3n-dimensiuxf3n-entorno}
+
+Dentro de la dimensión Entorno, el ítem más influyente es \textbf{E1
+(Decoración)} (\(|\rho_s|\) promedio = 0.39), y el de menor influencia
+es \textbf{E5 (Manteles)} (\(|\rho_s|\) promedio = 0.194). La mayor
+cantidad de ítems en esta dimensión (8 frente a 3 de las otras) permite
+una mirada más granular: el heatmap evidencia que no todos los aspectos
+del entorno pesan por igual, y las barras apiladas muestran que ciertos
+elementos del ambiente tienen una relación más marcada con la decisión
+de recomendar.
+
+\subsection{Conclusión general}\label{conclusiuxf3n-general}
+
+\begin{longtable}[t]{clcc}
+\caption{\label{tab:tabla-ranking-global}Ranking global de ítems por influencia sobre las variables dependientes}\\
+\toprule
+Ranking & Dimensión & Ítem & \$\&\#124;\textbackslash{}rho\_s\&\#124;\$ promedio\\
+\midrule
+\textbf{1} & \textbf{Producto} & \textbf{P1 (Sabor)} & \textbf{0.540}\\
+2 & Producto & P2 (Presentación) & 0.478\\
+3 & Entorno & E1 (Decoración) & 0.390\\
+4 & Producto & P3 (Frescura) & 0.376\\
+5 & Entorno & E8 (Música) & 0.341\\
+\addlinespace
+6 & Entorno & E2 (Colores) & 0.328\\
+7 & Entorno & E6 (Espacio) & 0.317\\
+8 & Servicio & S1 (Atención) & 0.300\\
+9 & Entorno & E3 (Mobiliario) & 0.296\\
+10 & Entorno & E7 (Asientos) & 0.249\\
+\addlinespace
+11 & Entorno & E4 (Menaje) & 0.238\\
+12 & Servicio & S2 (Confianza) & 0.228\\
+13 & Servicio & S3 (Apariencia) & 0.205\\
+14 & Entorno & E5 (Manteles) & 0.194\\
+\bottomrule
+\end{longtable}
+
+Considerando las tres dimensiones de forma conjunta, el factor sensorial
+más influyente en la toma de decisiones del comensal es \textbf{P1
+(Sabor)} (dimensión \textbf{Producto}), con un \(|\rho_s|\) promedio de
+0.54. Este resultado indica que, entre todos los atributos evaluados,
+dicho factor presenta la asociación más fuerte y consistente con las
+tres variables de resultado: satisfacción, intención de revisitar e
+intención de recomendar.
+
+La tabla de ranking global permite además identificar cuáles ítems de
+cada dimensión contribuyen más a la experiencia del comensal,
+información útil para priorizar esfuerzos de mejora en un
+establecimiento de alimentos y bebidas.
+
+\end{document}

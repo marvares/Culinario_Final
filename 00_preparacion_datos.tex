@@ -1,0 +1,668 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+  spanish,
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Preparación de Datos},
+  pdfauthor={Martín Vargas Estrada},
+  pdflang={es},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Preparación de Datos}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Impacto de los factores de la experiencia gastronómica en la
+toma de decisiones del comensal}
+\author{Martín Vargas Estrada}
+\date{08 de Marzo de 2026}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\section{Librerías y
+configuración}\label{libreruxedas-y-configuraciuxf3n}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(readxl)}
+\FunctionTok{library}\NormalTok{(dplyr)}
+\FunctionTok{library}\NormalTok{(tidyr)}
+\FunctionTok{library}\NormalTok{(knitr)}
+\FunctionTok{library}\NormalTok{(kableExtra)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Ajusta esta ruta al lugar donde tengas el archivo Excel}
+\NormalTok{archivo\_excel }\OtherTok{\textless{}{-}} \StringTok{"Tab\_Tes.xlsx"}
+
+\NormalTok{hojas }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"semana 1"}\NormalTok{, }\StringTok{"semana 2"}\NormalTok{, }\StringTok{"semana 3"}\NormalTok{, }\StringTok{"semana 4"}\NormalTok{)}
+
+\NormalTok{condiciones }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"semana 1"} \OtherTok{=} \StringTok{"base"}\NormalTok{,}
+  \StringTok{"semana 2"} \OtherTok{=} \StringTok{"servicio\_degradado"}\NormalTok{,}
+  \StringTok{"semana 3"} \OtherTok{=} \StringTok{"producto\_degradado"}\NormalTok{,}
+  \StringTok{"semana 4"} \OtherTok{=} \StringTok{"entorno\_degradado"}
+\NormalTok{)}
+
+\NormalTok{nombres\_items }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"P1"}\NormalTok{, }\StringTok{"P2"}\NormalTok{, }\StringTok{"P3"}\NormalTok{,}
+                   \StringTok{"S1"}\NormalTok{, }\StringTok{"S2"}\NormalTok{, }\StringTok{"S3"}\NormalTok{,}
+                   \StringTok{"E1"}\NormalTok{, }\StringTok{"E2"}\NormalTok{, }\StringTok{"E3"}\NormalTok{, }\StringTok{"E4"}\NormalTok{,}
+                   \StringTok{"E5"}\NormalTok{, }\StringTok{"E6"}\NormalTok{, }\StringTok{"E7"}\NormalTok{, }\StringTok{"E8"}\NormalTok{,}
+                   \StringTok{"I1"}\NormalTok{, }\StringTok{"I2"}\NormalTok{, }\StringTok{"I3"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Lectura y consolidación}\label{lectura-y-consolidaciuxf3n}
+
+Se leen las cuatro hojas del archivo Excel (una por semana/condición
+experimental) y se consolidan en un único data frame.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos\_lista }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{ (hoja }\ControlFlowTok{in}\NormalTok{ hojas) \{}
+\NormalTok{  df\_temp }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}
+    \AttributeTok{path      =}\NormalTok{ archivo\_excel,}
+    \AttributeTok{sheet     =}\NormalTok{ hoja,}
+    \AttributeTok{range     =} \StringTok{"B2:S46"}\NormalTok{,}
+    \AttributeTok{col\_names =} \ConstantTok{TRUE}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{setNames}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"nro\_comensal"}\NormalTok{, nombres\_items)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}
+      \AttributeTok{semana    =} \FunctionTok{which}\NormalTok{(hojas }\SpecialCharTok{==}\NormalTok{ hoja),}
+      \AttributeTok{condicion =}\NormalTok{ condiciones[hoja],}
+      \AttributeTok{.before   =}\NormalTok{ nro\_comensal}
+\NormalTok{    )}
+
+\NormalTok{  datos\_lista[[hoja]] }\OtherTok{\textless{}{-}}\NormalTok{ df\_temp}
+\NormalTok{\}}
+
+\NormalTok{datos }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(datos\_lista)}
+\end{Highlighting}
+\end{Shaded}
+
+El data frame consolidado tiene \textbf{176 filas} (44 comensales × 4
+semanas) y \textbf{20 columnas}.
+
+\section{Verificaciones de
+integridad}\label{verificaciones-de-integridad}
+
+\subsection{Registros por semana}\label{registros-por-semana}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(semana, condicion, }\AttributeTok{name =} \StringTok{"n\_registros"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{condicion =} \FunctionTok{c}\NormalTok{(}\StringTok{"Base (todo bien)"}\NormalTok{,}
+                        \StringTok{"Servicio degradado"}\NormalTok{,}
+                        \StringTok{"Producto degradado"}\NormalTok{,}
+                        \StringTok{"Entorno degradado"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{col.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"Semana"}\NormalTok{, }\StringTok{"Condición experimental"}\NormalTok{, }\StringTok{"n"}\NormalTok{),}
+        \AttributeTok{align =} \StringTok{"clc"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{bootstrap\_options =} \FunctionTok{c}\NormalTok{(}\StringTok{"striped"}\NormalTok{, }\StringTok{"hover"}\NormalTok{),}
+                \AttributeTok{full\_width =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[t]{clc}
+\toprule
+Semana & Condición experimental & n\\
+\midrule
+1 & Base (todo bien) & 44\\
+2 & Servicio degradado & 44\\
+3 & Producto degradado & 44\\
+4 & Entorno degradado & 44\\
+\bottomrule
+\end{longtable}
+
+\subsection{Rango de ítems Likert}\label{rango-de-uxedtems-likert}
+
+Se verifica que todos los ítems de escala Likert (P1--P3, S1--S3,
+E1--E8, I1, I2) contengan valores entre 1 y 5.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{items\_likert }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"P1"}\NormalTok{,}\StringTok{"P2"}\NormalTok{,}\StringTok{"P3"}\NormalTok{,}\StringTok{"S1"}\NormalTok{,}\StringTok{"S2"}\NormalTok{,}\StringTok{"S3"}\NormalTok{,}
+                   \StringTok{"E1"}\NormalTok{,}\StringTok{"E2"}\NormalTok{,}\StringTok{"E3"}\NormalTok{,}\StringTok{"E4"}\NormalTok{,}\StringTok{"E5"}\NormalTok{,}\StringTok{"E6"}\NormalTok{,}\StringTok{"E7"}\NormalTok{,}\StringTok{"E8"}\NormalTok{,}
+                   \StringTok{"I1"}\NormalTok{,}\StringTok{"I2"}\NormalTok{)}
+
+\NormalTok{rangos }\OtherTok{\textless{}{-}}\NormalTok{ datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{all\_of}\NormalTok{(items\_likert),}
+                   \FunctionTok{list}\NormalTok{(}\AttributeTok{Min =} \SpecialCharTok{\textasciitilde{}}\FunctionTok{min}\NormalTok{(., }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+                        \AttributeTok{Max =} \SpecialCharTok{\textasciitilde{}}\FunctionTok{max}\NormalTok{(., }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)))) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{pivot\_longer}\NormalTok{(}\FunctionTok{everything}\NormalTok{(),}
+               \AttributeTok{names\_to  =} \FunctionTok{c}\NormalTok{(}\StringTok{"Item"}\NormalTok{, }\StringTok{".value"}\NormalTok{),}
+               \AttributeTok{names\_sep =} \StringTok{"\_"}\NormalTok{)}
+
+\NormalTok{rangos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Estado =} \FunctionTok{ifelse}\NormalTok{(Min }\SpecialCharTok{\textgreater{}=} \DecValTok{1} \SpecialCharTok{\&}\NormalTok{ Max }\SpecialCharTok{\textless{}=} \DecValTok{5}\NormalTok{, }\StringTok{"OK"}\NormalTok{, }\StringTok{"FUERA DE RANGO"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{col.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"Ítem"}\NormalTok{, }\StringTok{"Mínimo"}\NormalTok{, }\StringTok{"Máximo"}\NormalTok{, }\StringTok{"Estado"}\NormalTok{),}
+        \AttributeTok{align =} \StringTok{"lccc"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{bootstrap\_options =} \FunctionTok{c}\NormalTok{(}\StringTok{"striped"}\NormalTok{, }\StringTok{"hover"}\NormalTok{),}
+                \AttributeTok{full\_width =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{column\_spec}\NormalTok{(}\DecValTok{4}\NormalTok{, }\AttributeTok{color =} \FunctionTok{ifelse}\NormalTok{(rangos}\SpecialCharTok{$}\NormalTok{Min }\SpecialCharTok{\textgreater{}=} \DecValTok{1} \SpecialCharTok{\&}\NormalTok{ rangos}\SpecialCharTok{$}\NormalTok{Max }\SpecialCharTok{\textless{}=} \DecValTok{5}\NormalTok{,}
+                                 \StringTok{"green"}\NormalTok{, }\StringTok{"red"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[t]{lcc>{}c}
+\toprule
+Ítem & Mínimo & Máximo & Estado\\
+\midrule
+P1 & 1 & 5 & \textcolor{green}{OK}\\
+P2 & 1 & 5 & \textcolor{green}{OK}\\
+P3 & 1 & 5 & \textcolor{green}{OK}\\
+S1 & 1 & 5 & \textcolor{green}{OK}\\
+S2 & 1 & 5 & \textcolor{green}{OK}\\
+\addlinespace
+S3 & 1 & 5 & \textcolor{green}{OK}\\
+E1 & 1 & 5 & \textcolor{green}{OK}\\
+E2 & 1 & 5 & \textcolor{green}{OK}\\
+E3 & 1 & 5 & \textcolor{green}{OK}\\
+E4 & 1 & 5 & \textcolor{green}{OK}\\
+\addlinespace
+E5 & 1 & 5 & \textcolor{green}{OK}\\
+E6 & 1 & 5 & \textcolor{green}{OK}\\
+E7 & 1 & 5 & \textcolor{green}{OK}\\
+E8 & 1 & 5 & \textcolor{green}{OK}\\
+I1 & 1 & 5 & \textcolor{green}{OK}\\
+\addlinespace
+I2 & 1 & 5 & \textcolor{green}{OK}\\
+\bottomrule
+\end{longtable}
+
+\subsection{Distribución de I3
+(recomendar)}\label{distribuciuxf3n-de-i3-recomendar}
+
+La variable I3 es \textbf{binaria} (1 = Sí recomendaría, 2 = No
+recomendaría), a diferencia de los demás ítems que son Likert 1--5.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tabla\_i3 }\OtherTok{\textless{}{-}} \FunctionTok{table}\NormalTok{(}
+  \AttributeTok{Semana =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Semana"}\NormalTok{, datos}\SpecialCharTok{$}\NormalTok{semana),}
+  \StringTok{\textasciigrave{}}\AttributeTok{Recomendaría (I3)}\StringTok{\textasciigrave{}} \OtherTok{=} \FunctionTok{ifelse}\NormalTok{(datos}\SpecialCharTok{$}\NormalTok{I3 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\StringTok{"1 = Sí"}\NormalTok{, }\StringTok{"2 = No"}\NormalTok{)}
+\NormalTok{)}
+
+\NormalTok{tabla\_i3 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{addmargins}\NormalTok{(}\AttributeTok{margin =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{align =} \StringTok{"ccc"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{bootstrap\_options =} \FunctionTok{c}\NormalTok{(}\StringTok{"striped"}\NormalTok{, }\StringTok{"hover"}\NormalTok{),}
+                \AttributeTok{full\_width =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[t]{lccc}
+\toprule
+ & 1 = Sí & 2 = No & Sum\\
+\midrule
+Semana 1 & 42 & 2 & 44\\
+Semana 2 & 21 & 23 & 44\\
+Semana 3 & 13 & 31 & 44\\
+Semana 4 & 13 & 31 & 44\\
+\bottomrule
+\end{longtable}
+
+\subsection{Valores faltantes}\label{valores-faltantes}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n\_na }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(datos }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(}\FunctionTok{all\_of}\NormalTok{(nombres\_items))))}
+\end{Highlighting}
+\end{Shaded}
+
+Total de valores faltantes en los 17 ítems: \textbf{0}.
+
+\section{Transformaciones}\label{transformaciones}
+
+\subsection{Recodificación de I3}\label{recodificaciuxf3n-de-i3}
+
+Se crea \texttt{I3\_bin} (1 = Sí, 0 = No) para facilitar el cálculo de
+proporciones y su uso en regresión logística.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos }\OtherTok{\textless{}{-}}\NormalTok{ datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{I3\_bin    =} \FunctionTok{ifelse}\NormalTok{(I3 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{),}
+    \AttributeTok{I3\_factor =} \FunctionTok{factor}\NormalTok{(I3\_bin, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{),}
+                       \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"No recomendaría"}\NormalTok{, }\StringTok{"Sí recomendaría"}\NormalTok{))}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{table}\NormalTok{(}
+  \AttributeTok{Semana =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Semana"}\NormalTok{, datos}\SpecialCharTok{$}\NormalTok{semana),}
+\NormalTok{  Recomendaría }\OtherTok{=}\NormalTok{ datos}\SpecialCharTok{$}\NormalTok{I3\_factor}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{addmargins}\NormalTok{(}\AttributeTok{margin =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{align =} \StringTok{"ccc"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{bootstrap\_options =} \FunctionTok{c}\NormalTok{(}\StringTok{"striped"}\NormalTok{, }\StringTok{"hover"}\NormalTok{),}
+                \AttributeTok{full\_width =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[t]{lccc}
+\toprule
+ & No recomendaría & Sí recomendaría & Sum\\
+\midrule
+Semana 1 & 2 & 42 & 44\\
+Semana 2 & 23 & 21 & 44\\
+Semana 3 & 31 & 13 & 44\\
+Semana 4 & 31 & 13 & 44\\
+\bottomrule
+\end{longtable}
+
+\subsection{Índices agregados por
+dimensión}\label{uxedndices-agregados-por-dimensiuxf3n}
+
+Se calcula el promedio de los ítems de cada dimensión para obtener un
+puntaje compuesto:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Producto}: media de P1, P2, P3
+\item
+  \textbf{Servicio}: media de S1, S2, S3
+\item
+  \textbf{Entorno}: media de E1, E2, E3, E4, E5, E6, E7, E8
+\item
+  \textbf{Satisfacción}: I1 (ítem único)
+\item
+  \textbf{Revisitar}: I2 (ítem único)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos }\OtherTok{\textless{}{-}}\NormalTok{ datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{idx\_producto     =} \FunctionTok{rowMeans}\NormalTok{(}\FunctionTok{select}\NormalTok{(., P1, P2, P3)),}
+    \AttributeTok{idx\_servicio     =} \FunctionTok{rowMeans}\NormalTok{(}\FunctionTok{select}\NormalTok{(., S1, S2, S3)),}
+    \AttributeTok{idx\_entorno      =} \FunctionTok{rowMeans}\NormalTok{(}\FunctionTok{select}\NormalTok{(., E1, E2, E3, E4, E5, E6, E7, E8)),}
+    \AttributeTok{idx\_satisfaccion =}\NormalTok{ I1,}
+    \AttributeTok{idx\_revisitar    =}\NormalTok{ I2}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Conversión de variables categóricas a
+factores}\label{conversiuxf3n-de-variables-categuxf3ricas-a-factores}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos }\OtherTok{\textless{}{-}}\NormalTok{ datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{semana    =} \FunctionTok{factor}\NormalTok{(semana, }\AttributeTok{levels =} \DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{,}
+                       \AttributeTok{labels =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Semana"}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{)),}
+    \AttributeTok{condicion =} \FunctionTok{factor}\NormalTok{(condicion,}
+                       \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"base"}\NormalTok{,}
+                                  \StringTok{"servicio\_degradado"}\NormalTok{,}
+                                  \StringTok{"producto\_degradado"}\NormalTok{,}
+                                  \StringTok{"entorno\_degradado"}\NormalTok{),}
+                       \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Base (todo bien)"}\NormalTok{,}
+                                  \StringTok{"Servicio degradado"}\NormalTok{,}
+                                  \StringTok{"Producto degradado"}\NormalTok{,}
+                                  \StringTok{"Entorno degradado"}\NormalTok{))}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Estadísticos descriptivos por
+condición}\label{estaduxedsticos-descriptivos-por-condiciuxf3n}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{resumen }\OtherTok{\textless{}{-}}\NormalTok{ datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(Condición }\OtherTok{=}\NormalTok{ condicion) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{n    =} \FunctionTok{n}\NormalTok{(),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Producto (M)}\StringTok{\textasciigrave{}}   \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(idx\_producto), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Producto (DE)}\StringTok{\textasciigrave{}}  \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{sd}\NormalTok{(idx\_producto), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Servicio (M)}\StringTok{\textasciigrave{}}   \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(idx\_servicio), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Servicio (DE)}\StringTok{\textasciigrave{}}  \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{sd}\NormalTok{(idx\_servicio), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Entorno (M)}\StringTok{\textasciigrave{}}    \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(idx\_entorno), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Entorno (DE)}\StringTok{\textasciigrave{}}   \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{sd}\NormalTok{(idx\_entorno), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Satisf. (M)}\StringTok{\textasciigrave{}}    \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(idx\_satisfaccion), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Satisf. (DE)}\StringTok{\textasciigrave{}}   \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{sd}\NormalTok{(idx\_satisfaccion), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Revisitar (M)}\StringTok{\textasciigrave{}}  \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(idx\_revisitar), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Revisitar (DE)}\StringTok{\textasciigrave{}} \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{sd}\NormalTok{(idx\_revisitar), }\DecValTok{2}\NormalTok{),}
+    \StringTok{\textasciigrave{}}\AttributeTok{Recomendar (\%)}\StringTok{\textasciigrave{}} \OtherTok{=} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(I3\_bin) }\SpecialCharTok{*} \DecValTok{100}\NormalTok{, }\DecValTok{1}\NormalTok{),}
+    \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{  )}
+
+\NormalTok{resumen }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{align =} \FunctionTok{c}\NormalTok{(}\StringTok{"l"}\NormalTok{, }\FunctionTok{rep}\NormalTok{(}\StringTok{"c"}\NormalTok{, }\FunctionTok{ncol}\NormalTok{(resumen) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{))) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{bootstrap\_options =} \FunctionTok{c}\NormalTok{(}\StringTok{"striped"}\NormalTok{, }\StringTok{"hover"}\NormalTok{, }\StringTok{"condensed"}\NormalTok{),}
+                \AttributeTok{full\_width =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{font\_size =} \DecValTok{13}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_header\_above}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{" "} \OtherTok{=} \DecValTok{2}\NormalTok{,}
+                     \StringTok{"Producto"} \OtherTok{=} \DecValTok{2}\NormalTok{, }\StringTok{"Servicio"} \OtherTok{=} \DecValTok{2}\NormalTok{, }\StringTok{"Entorno"} \OtherTok{=} \DecValTok{2}\NormalTok{,}
+                     \StringTok{"Satisfacción"} \OtherTok{=} \DecValTok{2}\NormalTok{, }\StringTok{"Revisitar"} \OtherTok{=} \DecValTok{2}\NormalTok{,}
+                     \StringTok{"Recomendar"} \OtherTok{=} \DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begingroup\fontsize{13}{15}\selectfont
+
+\begin{longtabu} to \linewidth {>{\raggedright}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X>{\centering}X}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{2}{c}{Producto} & \multicolumn{2}{c}{Servicio} & \multicolumn{2}{c}{Entorno} & \multicolumn{2}{c}{Satisfacción} & \multicolumn{2}{c}{Revisitar} & \multicolumn{1}{c}{Recomendar} \\
+\cmidrule(l{3pt}r{3pt}){3-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-8} \cmidrule(l{3pt}r{3pt}){9-10} \cmidrule(l{3pt}r{3pt}){11-12} \cmidrule(l{3pt}r{3pt}){13-13}
+Condición & n & Producto (M) & Producto (DE) & Servicio (M) & Servicio (DE) & Entorno (M) & Entorno (DE) & Satisf. (M) & Satisf. (DE) & Revisitar (M) & Revisitar (DE) & Recomendar (\%)\\
+\midrule
+Base (todo bien) & 44 & 3.77 & 0.57 & 4.30 & 0.62 & 4.33 & 0.39 & 4.07 & 0.45 & 4.09 & 0.64 & 95.5\\
+Servicio degradado & 44 & 3.44 & 0.72 & 3.11 & 1.02 & 4.11 & 0.56 & 3.23 & 0.91 & 3.02 & 0.98 & 47.7\\
+Producto degradado & 44 & 2.72 & 0.63 & 4.33 & 0.66 & 4.16 & 0.43 & 2.86 & 0.98 & 2.61 & 0.81 & 29.5\\
+Entorno degradado & 44 & 3.15 & 0.93 & 3.95 & 0.84 & 2.29 & 0.73 & 2.82 & 0.92 & 2.59 & 0.90 & 29.5\\
+\bottomrule
+\end{longtabu}
+\endgroup{}
+
+\section{Verificación de la manipulación
+experimental}\label{verificaciuxf3n-de-la-manipulaciuxf3n-experimental}
+
+En cada condición degradada, la dimensión manipulada debería mostrar un
+valor notablemente inferior al de la línea base, mientras que las demás
+dimensiones se mantienen relativamente estables.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{manip }\OtherTok{\textless{}{-}}\NormalTok{ datos }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(Condición }\OtherTok{=}\NormalTok{ condicion) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{Producto =} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(idx\_producto), }\DecValTok{2}\NormalTok{),}
+    \AttributeTok{Servicio =} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(idx\_servicio), }\DecValTok{2}\NormalTok{),}
+    \AttributeTok{Entorno  =} \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{(idx\_entorno), }\DecValTok{2}\NormalTok{),}
+    \AttributeTok{.groups  =} \StringTok{"drop"}
+\NormalTok{  )}
+
+\NormalTok{manip }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{align =} \StringTok{"lccc"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{bootstrap\_options =} \FunctionTok{c}\NormalTok{(}\StringTok{"striped"}\NormalTok{, }\StringTok{"hover"}\NormalTok{),}
+                \AttributeTok{full\_width =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[t]{lccc}
+\toprule
+Condición & Producto & Servicio & Entorno\\
+\midrule
+Base (todo bien) & 3.77 & 4.30 & 4.33\\
+Servicio degradado & 3.44 & 3.11 & 4.11\\
+Producto degradado & 2.72 & 4.33 & 4.16\\
+Entorno degradado & 3.15 & 3.95 & 2.29\\
+\bottomrule
+\end{longtable}
+
+\textbf{Lectura de la tabla:} En la fila ``Producto degradado'' (semana
+3), el índice de Producto cae a 2.72 frente a 3.77 de la base.
+Análogamente, el Servicio cae a 3.11 en la semana 2, y el Entorno cae a
+2.29 en la semana 4. Las dimensiones no manipuladas se mantienen en
+niveles cercanos a la línea base, lo que confirma que la manipulación
+experimental fue efectiva.
+
+\section{Exportación de datos
+preparados}\label{exportaciuxf3n-de-datos-preparados}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{write.csv}\NormalTok{(datos, }\StringTok{"datos\_tesis\_preparados.csv"}\NormalTok{, }\AttributeTok{row.names =} \ConstantTok{FALSE}\NormalTok{)}
+\FunctionTok{save}\NormalTok{(datos, }\AttributeTok{file =} \StringTok{"datos\_tesis\_preparados.RData"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Se generaron los archivos:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{datos\_tesis\_preparados.csv} --- compatible con Jamovi, SPSS
+  y Excel
+\item
+  \texttt{datos\_tesis\_preparados.RData} --- preserva factores y tipos
+  de datos para scripts R posteriores
+\end{itemize}
+
+\section{Estructura final del data
+frame}\label{estructura-final-del-data-frame}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{str}\NormalTok{(datos)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> tibble [176 x 27] (S3: tbl_df/tbl/data.frame)
+#>  $ semana          : Factor w/ 4 levels "Semana 1","Semana 2",..: 1 1 1 1 1 1 1 1 1 1 ...
+#>  $ condicion       : Factor w/ 4 levels "Base (todo bien)",..: 1 1 1 1 1 1 1 1 1 1 ...
+#>   ..- attr(*, "names")= chr [1:176] "semana 1" "semana 1" "semana 1" "semana 1" ...
+#>  $ nro_comensal    : num [1:176] 1 2 3 4 5 6 7 8 9 10 ...
+#>  $ P1              : num [1:176] 4 5 5 3 3 3 4 4 3 3 ...
+#>  $ P2              : num [1:176] 4 4 5 4 3 3 4 5 4 4 ...
+#>  $ P3              : num [1:176] 5 5 5 5 4 4 5 3 3 4 ...
+#>  $ S1              : num [1:176] 5 5 5 5 5 4 5 5 3 3 ...
+#>  $ S2              : num [1:176] 4 5 5 5 5 3 5 5 3 3 ...
+#>  $ S3              : num [1:176] 5 5 5 5 4 4 5 4 4 4 ...
+#>  $ E1              : num [1:176] 5 5 5 4 5 5 5 5 4 4 ...
+#>  $ E2              : num [1:176] 4 5 5 5 4 5 5 5 5 5 ...
+#>  $ E3              : num [1:176] 4 5 4 4 3 3 3 4 3 4 ...
+#>  $ E4              : num [1:176] 4 5 5 5 4 4 3 4 5 3 ...
+#>  $ E5              : num [1:176] 5 5 5 5 5 4 4 5 4 5 ...
+#>  $ E6              : num [1:176] 5 5 5 5 5 4 5 5 5 4 ...
+#>  $ E7              : num [1:176] 5 5 5 4 5 2 5 5 5 4 ...
+#>  $ E8              : num [1:176] 5 5 5 4 4 4 5 5 5 2 ...
+#>  $ I1              : num [1:176] 4 4 5 4 4 4 4 4 4 3 ...
+#>  $ I2              : num [1:176] 4 3 5 4 4 4 3 4 4 4 ...
+#>  $ I3              : num [1:176] 1 1 1 1 1 1 1 1 1 1 ...
+#>  $ I3_bin          : num [1:176] 1 1 1 1 1 1 1 1 1 1 ...
+#>  $ I3_factor       : Factor w/ 2 levels "No recomendaría",..: 2 2 2 2 2 2 2 2 2 2 ...
+#>  $ idx_producto    : num [1:176] 4.33 4.67 5 4 3.33 ...
+#>  $ idx_servicio    : num [1:176] 4.67 5 5 5 4.67 ...
+#>  $ idx_entorno     : num [1:176] 4.62 5 4.88 4.5 4.38 ...
+#>  $ idx_satisfaccion: num [1:176] 4 4 5 4 4 4 4 4 4 3 ...
+#>  $ idx_revisitar   : num [1:176] 4 3 5 4 4 4 3 4 4 4 ...
+\end{verbatim}
+
+\section{Diccionario de variables}\label{diccionario-de-variables}
+
+\subsection{Variables de agrupación}\label{variables-de-agrupaciuxf3n}
+
+\begin{longtable}[t]{lll}
+\toprule
+Variable & Tipo & Descripción\\
+\midrule
+semana & Factor & Semana del evento (Semana 1 a 4)\\
+condicion & Factor & Condición experimental: Base / Servicio degradado / Producto degradado / Entorno degradado\\
+nro\_comensal & Num & Número del comensal dentro de cada semana (1–44). NO identifica a la misma persona entre semanas\\
+\bottomrule
+\end{longtable}
+
+\subsection{Ítems individuales (Likert
+1--5)}\label{uxedtems-individuales-likert-15}
+
+\begin{longtabu} to \linewidth {>{\raggedright}X>{\raggedright}X>{\raggedright}X}
+\toprule
+Código & Dimensión & Enunciado\\
+\midrule
+P1 & Producto & El sabor de la comida es excelente\\
+P2 & Producto & La presentación de la comida en el plato es muy atractiva\\
+P3 & Producto & La comida que se sirve en el restaurante se ve fresca\\
+S1 & Servicio & Los camareros se muestran atentos durante la visita\\
+S2 & Servicio & El comportamiento de los camareros me inspiró confianza\\
+\addlinespace
+S3 & Servicio & Los camareros mantienen una apariencia profesional y pulcra\\
+E1 & Entorno & La decoración del lugar es acogedora y atractiva\\
+E2 & Entorno & Los colores del restaurante crean un ambiente agradable\\
+E3 & Entorno & El mobiliario es de alta calidad y las sillas son cómodas\\
+E4 & Entorno & El menaje es de alta calidad (cubertería, vajilla, cristalería)\\
+\addlinespace
+E5 & Entorno & Los manteles y servilletas son de alta calidad\\
+E6 & Entorno & El espacio y distribución del mobiliario permite moverse libremente\\
+E7 & Entorno & La disposición de los asientos es espaciosa y cómoda\\
+E8 & Entorno & La música es adecuada\\
+\bottomrule
+\end{longtabu}
+
+\subsection{Variables dependientes}\label{variables-dependientes}
+
+\begin{longtable}[t]{lll}
+\toprule
+Variable & Tipo & Descripción\\
+\midrule
+I1 & Num & Satisfacción general (Likert 1–5)\\
+I2 & Num & Intención de revisitar (Likert 1–5)\\
+I3 & Num & Recomendaría — codificación original (1=Sí, 2=No)\\
+I3\_bin & Num & Recomendaría — recodificado (1=Sí, 0=No)\\
+I3\_factor & Factor & Recomendaría — con etiquetas legibles\\
+\bottomrule
+\end{longtable}
+
+\subsection{Índices agregados}\label{uxedndices-agregados}
+
+\begin{longtable}[t]{ll}
+\toprule
+Variable & Cálculo\\
+\midrule
+idx\_producto & Promedio de P1, P2, P3\\
+idx\_servicio & Promedio de S1, S2, S3\\
+idx\_entorno & Promedio de E1, E2, E3, E4, E5, E6, E7, E8\\
+idx\_satisfaccion & = I1 (ítem único)\\
+idx\_revisitar & = I2 (ítem único)\\
+\bottomrule
+\end{longtable}
+
+\end{document}

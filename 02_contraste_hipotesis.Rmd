@@ -1,0 +1,710 @@
+---
+title: "Contraste de Hipótesis"
+subtitle: |
+  Impacto de los factores de la experiencia gastronómica
+  en la toma de decisiones del comensal
+author: "Ariana-Fernanda Valeria Vidal Tapia"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    latex_engine: xelatex
+    keep_tex: true
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{xcolor}
+  - \usepackage{pdflscape}
+  - \usepackage{geometry}
+  - \geometry{margin=2.5cm}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyhead[L]{\small Contraste de Hipótesis}
+  - \fancyhead[R]{\small Tesis --- Experiencia Gastronómica}
+  - \fancyfoot[C]{\thepage}
+  - \renewcommand{\headrulewidth}{0.4pt}
+  - \usepackage{caption}
+  - \captionsetup{font=small, labelfont=bf}
+lang: es
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  comment = "#>",
+  fig.pos = "H",
+  fig.width  = 7,
+  fig.height = 4,
+  out.width  = "95%",
+  fig.align  = "center"
+)
+
+options(knitr.table.format = "latex")
+```
+
+# Carga de datos y librerías
+
+```{r librerias}
+# --- Librerías necesarias ---
+# install.packages(c("dunn.test", "effsize", "rstatix", "car",
+#                     "ggplot2", "knitr", "kableExtra"))
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(car)
+library(dunn.test)
+library(rstatix)
+library(knitr)
+library(kableExtra)
+```
+
+```{r carga-datos}
+load("datos_tesis_preparados.RData")
+
+# Vectores de referencia
+condiciones_niveles <- levels(datos$condicion)
+cond_base <- condiciones_niveles[1]  # "Base (todo bien)"
+```
+
+Este informe toma como insumo la tabla de decisión del informe anterior (verificación de supuestos). Para cada variable dependiente se aplica la prueba más adecuada según el cumplimiento de normalidad y homocedasticidad. Adicionalmente, dado que los datos son escalas Likert (ordinales), se ejecuta sistemáticamente el enfoque no paramétrico como análisis principal y el paramétrico como análisis de sensibilidad.
+
+\newpage
+
+# Hipótesis general
+
+> **$H_0$:** La variación en los elementos de la experiencia gastronómica NO influye significativamente en la toma de decisiones del comensal.
+>
+> **$H_1$:** La variación en los elementos de la experiencia gastronómica influye significativamente en la toma de decisiones del comensal.
+
+Se evalúa comparando las cuatro condiciones experimentales (base, servicio degradado, producto degradado, entorno degradado) sobre las tres variables dependientes: satisfacción (I1), intención de revisitar (I2) e intención de recomendar (I3).
+
+## Prueba ómnibus: Kruskal-Wallis
+
+```{r kruskal-omnibus}
+vars_dep <- c("idx_satisfaccion", "idx_revisitar")
+
+etiquetas_var <- c("idx_satisfaccion" = "Satisfacción (I1)",
+                   "idx_revisitar"    = "Revisitar (I2)")
+
+kw_resultados <- data.frame()
+
+for (vd in vars_dep) {
+  formula_kw <- as.formula(paste(vd, "~ condicion"))
+  test_kw <- kruskal.test(formula_kw, data = datos)
+
+  # Tamaño del efecto: eta-cuadrado basado en H de Kruskal-Wallis
+  # eta2_H = (H - k + 1) / (n - k), donde k = n° de grupos
+  k <- length(condiciones_niveles)
+  n <- nrow(datos)
+  eta2_H <- (test_kw$statistic - k + 1) / (n - k)
+
+  kw_resultados <- rbind(kw_resultados, data.frame(
+    Variable = etiquetas_var[vd],
+    H        = round(test_kw$statistic, 3),
+    df       = test_kw$parameter,
+    p        = test_kw$p.value,
+    eta2     = round(eta2_H, 3),
+    Sig      = ifelse(test_kw$p.value < 0.05, "Sí", "No")
+  ))
+}
+```
+
+```{r kw-omnibus-print, echo=FALSE}
+kw_resultados %>%
+  mutate(p = ifelse(p < 0.001, "< .001", format(round(p, 4), nsmall = 4))) %>%
+  kable(col.names = c("Variable", "$H$", "$gl$", "$p$",
+                       "$\\eta^2_H$", "Significativo"),
+        align    = "lccccc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        row.names = FALSE) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE) %>%
+  column_spec(6, color = ifelse(kw_resultados$Sig == "Sí", "teal", "red"))
+```
+
+**Interpretación de $\eta^2_H$:** valores de 0.01, 0.06 y 0.14 se consideran efectos pequeño, mediano y grande, respectivamente.
+
+## Prueba para I3 (recomendar): Chi-cuadrado
+
+Al ser I3 una variable binaria (Sí/No), se utiliza la prueba de chi-cuadrado de independencia para evaluar si la proporción de comensales que recomendarían difiere entre condiciones.
+
+```{r chi-cuadrado}
+tabla_chi <- table(datos$condicion, datos$I3_factor)
+
+test_chi <- chisq.test(tabla_chi)
+
+# Tamaño del efecto: V de Cramér
+n_chi <- sum(tabla_chi)
+k_chi <- min(nrow(tabla_chi), ncol(tabla_chi))
+cramer_v <- round(sqrt(test_chi$statistic / (n_chi * (k_chi - 1))), 3)
+```
+
+```{r chi-tabla-print, echo=FALSE}
+# Tabla de contingencia con porcentajes
+tabla_pct <- datos %>%
+  group_by(condicion, I3_factor) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(condicion) %>%
+  mutate(pct = round(n / sum(n) * 100, 1)) %>%
+  ungroup()
+
+tabla_wide <- tabla_pct %>%
+  mutate(celda = paste0(n, " (", pct, "\\%)")) %>%
+  select(condicion, I3_factor, celda) %>%
+  pivot_wider(names_from = I3_factor, values_from = celda)
+
+tabla_wide %>%
+  kable(col.names = c("Condición", "No recomendaría", "Sí recomendaría"),
+        align    = "lcc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        caption  = "Tabla de contingencia: Condición vs. Recomendaría") %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE)
+```
+
+```{r chi-resultado-print, echo=FALSE}
+tibble::tribble(
+  ~Estadistico, ~Valor,
+  "$\\chi^2$",  as.character(round(test_chi$statistic, 3)),
+  "$gl$",       as.character(test_chi$parameter),
+  "$p$",        ifelse(test_chi$p.value < 0.001, "< .001",
+                       as.character(round(test_chi$p.value, 4))),
+  "$V$ de Cramér", as.character(cramer_v)
+) %>%
+  kable(col.names = c("Estadístico", "Valor"),
+        align    = "lc",
+        booktabs = TRUE,
+        escape   = FALSE) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE)
+```
+
+**Interpretación de la $V$ de Cramér:** valores de 0.10, 0.30 y 0.50 se interpretan como efectos pequeño, mediano y grande, respectivamente.
+
+## Análisis de sensibilidad: ANOVA de Welch
+
+Como análisis complementario, se ejecuta el ANOVA de Welch (robusto ante varianzas desiguales) para I1 e I2.
+
+```{r welch-anova}
+welch_resultados <- data.frame()
+
+for (vd in vars_dep) {
+  formula_w <- as.formula(paste(vd, "~ condicion"))
+  test_w <- oneway.test(formula_w, data = datos, var.equal = FALSE)
+
+  welch_resultados <- rbind(welch_resultados, data.frame(
+    Variable = etiquetas_var[vd],
+    F        = round(test_w$statistic, 3),
+    df1      = round(test_w$parameter[1], 1),
+    df2      = round(test_w$parameter[2], 1),
+    p        = test_w$p.value,
+    Sig      = ifelse(test_w$p.value < 0.05, "Sí", "No")
+  ))
+}
+```
+
+```{r welch-print, echo=FALSE}
+welch_resultados %>%
+  mutate(p = ifelse(p < 0.001, "< .001", format(round(p, 4), nsmall = 4))) %>%
+  kable(col.names = c("Variable", "$F$", "$gl_1$", "$gl_2$", "$p$",
+                       "Significativo"),
+        align    = "lccccc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        row.names = FALSE) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE)
+```
+
+La convergencia de resultados entre Kruskal-Wallis y Welch ANOVA fortalece la robustez de las conclusiones.
+
+\newpage
+
+# Hipótesis específicas: Comparaciones focalizadas
+
+Cada hipótesis específica se contrasta comparando la condición degradada correspondiente contra la línea base (Semana 1).
+
+## Comparaciones post-hoc: Test de Dunn
+
+Se aplica el test de Dunn con corrección de Bonferroni. El interés principal está en los tres contrastes contra la base, aunque se reportan todas las comparaciones.
+
+```{r dunn-tests}
+dunn_satisf <- dunn.test::dunn.test(
+  datos$idx_satisfaccion,
+  g = datos$condicion,
+  method = "bonferroni",
+  kw = FALSE,
+  table = FALSE
+)
+
+dunn_revis <- dunn.test::dunn.test(
+  datos$idx_revisitar,
+  g = datos$condicion,
+  method = "bonferroni",
+  kw = FALSE,
+  table = FALSE
+)
+```
+
+```{r dunn-tabla-funcion}
+# Función auxiliar para formatear resultados de Dunn
+formatear_dunn <- function(dunn_obj, nombre_var) {
+  data.frame(
+    Variable    = nombre_var,
+    Comparacion = dunn_obj$comparisons,
+    Z           = round(dunn_obj$Z, 3),
+    p_ajustado  = dunn_obj$P.adjusted,
+    Sig         = ifelse(dunn_obj$P.adjusted < 0.05, "Sí", "No")
+  )
+}
+
+tab_dunn <- rbind(
+  formatear_dunn(dunn_satisf, "Satisfacción (I1)"),
+  formatear_dunn(dunn_revis,  "Revisitar (I2)")
+)
+```
+
+```{r dunn-print, echo=FALSE}
+tab_dunn %>%
+  mutate(p_ajustado = ifelse(p_ajustado < 0.001, "< .001",
+                              format(round(p_ajustado, 4), nsmall = 4))) %>%
+  kable(col.names = c("Variable", "Comparación", "$Z$",
+                       "$p$ ajustado", "Significativo"),
+        align    = "llccc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        row.names = FALSE) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE,
+                font_size = 9) %>%
+  pack_rows(index = table(tab_dunn$Variable))
+```
+
+## Tamaño del efecto por pares: $r$ de rango
+
+Para cada comparación significativa se calcula el tamaño del efecto $r = \frac{Z}{\sqrt{n_1 + n_2}}$, donde $n_1$ y $n_2$ son los tamaños de los grupos comparados.
+
+```{r effect-size-pares}
+# Todas las comparaciones son entre grupos de n=44
+n_par <- 44 + 44
+
+tab_dunn <- tab_dunn %>%
+  mutate(r_rango = round(abs(Z) / sqrt(n_par), 3))
+```
+
+```{r effect-size-print, echo=FALSE}
+tab_dunn %>%
+  mutate(
+    p_ajustado = ifelse(p_ajustado < 0.001, "< .001",
+                         format(round(as.numeric(p_ajustado), 4), nsmall = 4)),
+    Magnitud = case_when(
+      r_rango < 0.10 ~ "Trivial",
+      r_rango < 0.30 ~ "Pequeño",
+      r_rango < 0.50 ~ "Mediano",
+      TRUE           ~ "Grande"
+    )
+  ) %>%
+  select(Variable, Comparacion, Z, p_ajustado, r_rango, Magnitud) %>%
+  kable(col.names = c("Variable", "Comparación", "$Z$",
+                       "$p$ ajustado", "$r$", "Magnitud"),
+        align    = "llcccc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        row.names = FALSE) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE,
+                font_size = 9) %>%
+  pack_rows(index = table(tab_dunn$Variable))
+```
+
+**Interpretación de $r$:** valores de 0.10, 0.30 y 0.50 corresponden a efectos pequeño, mediano y grande (Cohen, 1988).
+
+## Comparaciones por pares para I3: Test exacto de Fisher
+
+Para la variable binaria I3 (recomendar), se comparan las proporciones de cada condición degradada contra la base usando el test exacto de Fisher con corrección de Bonferroni.
+
+```{r fisher-pares}
+conds_degradadas <- condiciones_niveles[2:4]
+etiq_degradadas <- c("Servicio degradado", "Producto degradado",
+                      "Entorno degradado")
+
+fisher_resultados <- data.frame()
+
+for (i in seq_along(conds_degradadas)) {
+  sub <- datos %>% filter(condicion %in% c(cond_base, conds_degradadas[i]))
+  tab_2x2 <- table(sub$condicion, sub$I3_factor)
+  # Eliminar niveles vacíos
+  tab_2x2 <- tab_2x2[rowSums(tab_2x2) > 0, ]
+
+  test_f <- fisher.test(tab_2x2)
+
+  # Proporción en cada grupo
+  p_base <- mean(datos$I3_bin[datos$condicion == cond_base])
+  p_deg  <- mean(datos$I3_bin[datos$condicion == conds_degradadas[i]])
+
+  fisher_resultados <- rbind(fisher_resultados, data.frame(
+    Comparacion = paste("Base vs.", etiq_degradadas[i]),
+    Prop_base   = round(p_base * 100, 1),
+    Prop_deg    = round(p_deg * 100, 1),
+    OR          = round(test_f$estimate, 2),
+    p           = test_f$p.value,
+    Sig         = ifelse(test_f$p.value < (0.05 / 3), "Sí", "No")
+  ))
+}
+```
+
+```{r fisher-print, echo=FALSE}
+fisher_resultados %>%
+  mutate(
+    p = ifelse(p < 0.001, "< .001", format(round(p, 4), nsmall = 4)),
+    Prop_base = paste0(Prop_base, "\\%"),
+    Prop_deg  = paste0(Prop_deg, "\\%")
+  ) %>%
+  kable(col.names = c("Comparación", "\\% Base", "\\% Degradada",
+                       "$OR$", "$p$",
+                       "Sig. (Bonf.)"),
+        align    = "lccccc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        row.names = FALSE) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE)
+```
+
+Se aplica corrección de Bonferroni dividiendo $\alpha = 0.05$ entre 3 comparaciones ($\alpha_{corregido} = 0.0167$). El Odds Ratio ($OR$) indica cuántas veces más probable es recomendar en la condición base respecto a la degradada.
+
+\newpage
+
+# Verificación de la manipulación experimental
+
+Se verifica formalmente que en cada condición degradada, la dimensión manipulada fue percibida como significativamente peor que en la línea base, y que las dimensiones no manipuladas se mantuvieron estables.
+
+```{r check-manipulacion}
+dims <- c("idx_producto", "idx_servicio", "idx_entorno")
+etiq_dims <- c("idx_producto" = "Producto",
+               "idx_servicio" = "Servicio",
+               "idx_entorno"  = "Entorno")
+
+manip_check <- data.frame()
+
+for (dim in dims) {
+  for (cond in conds_degradadas) {
+    sub <- datos %>% filter(condicion %in% c(cond_base, cond))
+    test_mw <- wilcox.test(
+      as.formula(paste(dim, "~ condicion")),
+      data = sub,
+      exact = FALSE
+    )
+
+    m_base <- mean(sub[[dim]][sub$condicion == cond_base])
+    m_deg  <- mean(sub[[dim]][sub$condicion == cond])
+
+    manip_check <- rbind(manip_check, data.frame(
+      Dimension = etiq_dims[dim],
+      Condicion = cond,
+      M_base    = round(m_base, 2),
+      M_deg     = round(m_deg, 2),
+      Dif       = round(m_deg - m_base, 2),
+      p         = test_mw$p.value
+    ))
+  }
+}
+```
+
+```{r check-manip-print, echo=FALSE}
+manip_check %>%
+  mutate(
+    p = ifelse(p < 0.001, "< .001", format(round(p, 4), nsmall = 4)),
+    Esperado = case_when(
+      Dimension == "Producto" & grepl("Producto", Condicion)   ~ "Debe bajar",
+      Dimension == "Servicio" & grepl("Servicio", Condicion)   ~ "Debe bajar",
+      Dimension == "Entorno"  & grepl("Entorno", Condicion)    ~ "Debe bajar",
+      TRUE ~ "Debe mantenerse"
+    )
+  ) %>%
+  kable(col.names = c("Dimensión", "Condición", "$M$ Base", "$M$ Degradada",
+                       "Diferencia", "$p$ (Mann-Whitney)", "Expectativa"),
+        align    = "llccccc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        row.names = FALSE) %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"),
+                full_width = FALSE,
+                font_size = 9)
+```
+
+Las celdas donde la expectativa es "Debe bajar" deberían mostrar diferencias negativas significativas. Las celdas con "Debe mantenerse" deberían mostrar diferencias no significativas o muy pequeñas.
+
+\newpage
+
+# Análisis de regresión: Factor más influyente (Objetivo 4)
+
+Para identificar cuál de las tres dimensiones (producto, servicio, entorno) tiene mayor peso relativo sobre las variables dependientes, se ajustan modelos de regresión con los datos combinados de las 4 semanas ($n = 176$).
+
+## Regresión lineal múltiple (Satisfacción e Intención de revisitar)
+
+```{r regresion-lineal}
+mod_satisf <- lm(idx_satisfaccion ~ idx_producto + idx_servicio + idx_entorno,
+                 data = datos)
+
+mod_revis <- lm(idx_revisitar ~ idx_producto + idx_servicio + idx_entorno,
+                data = datos)
+```
+
+### Modelo para Satisfacción (I1)
+
+```{r reg-satisf-print, echo=FALSE}
+s1 <- summary(mod_satisf)
+
+coefs_s1 <- as.data.frame(s1$coefficients) %>%
+  tibble::rownames_to_column("Predictor") %>%
+  mutate(
+    Predictor = case_match(Predictor,
+      "(Intercept)"  ~ "Intercepto",
+      "idx_producto" ~ "Producto",
+      "idx_servicio" ~ "Servicio",
+      "idx_entorno"  ~ "Entorno"),
+    across(where(is.numeric), ~round(., 4))
+  )
+
+# Coeficientes estandarizados (beta)
+datos_std <- datos %>%
+  mutate(across(c(idx_producto, idx_servicio, idx_entorno, idx_satisfaccion),
+                scale))
+mod_std_s <- lm(idx_satisfaccion ~ idx_producto + idx_servicio + idx_entorno,
+                data = datos_std)
+betas_s <- round(coef(mod_std_s)[-1], 3)
+
+coefs_s1$Beta <- c(NA, betas_s)
+
+coefs_s1 %>%
+  mutate(`Pr(>|t|)` = ifelse(`Pr(>|t|)` < 0.001, "< .001",
+                              format(`Pr(>|t|)`, nsmall = 4))) %>%
+  kable(col.names = c("Predictor", "$b$", "$EE$", "$t$", "$p$", "$\\beta$"),
+        align    = "lccccc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        row.names = FALSE,
+        caption  = paste0("Modelo Satisfacción: $R^2$ = ",
+                          round(s1$r.squared, 3),
+                          ", $R^2_{aj}$ = ",
+                          round(s1$adj.r.squared, 3),
+                          ", $F$(", s1$fstatistic[2], ", ",
+                          s1$fstatistic[3], ") = ",
+                          round(s1$fstatistic[1], 2))) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE)
+```
+
+### Modelo para Revisitar (I2)
+
+```{r reg-revis-print, echo=FALSE}
+s2 <- summary(mod_revis)
+
+coefs_s2 <- as.data.frame(s2$coefficients) %>%
+  tibble::rownames_to_column("Predictor") %>%
+  mutate(
+    Predictor = case_match(Predictor,
+      "(Intercept)"  ~ "Intercepto",
+      "idx_producto" ~ "Producto",
+      "idx_servicio" ~ "Servicio",
+      "idx_entorno"  ~ "Entorno"),
+    across(where(is.numeric), ~round(., 4))
+  )
+
+mod_std_r <- lm(idx_revisitar ~ idx_producto + idx_servicio + idx_entorno,
+                data = datos_std)
+betas_r <- round(coef(mod_std_r)[-1], 3)
+
+coefs_s2$Beta <- c(NA, betas_r)
+
+coefs_s2 %>%
+  mutate(`Pr(>|t|)` = ifelse(`Pr(>|t|)` < 0.001, "< .001",
+                              format(`Pr(>|t|)`, nsmall = 4))) %>%
+  kable(col.names = c("Predictor", "$b$", "$EE$", "$t$", "$p$", "$\\beta$"),
+        align    = "lccccc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        row.names = FALSE,
+        caption  = paste0("Modelo Revisitar: $R^2$ = ",
+                          round(s2$r.squared, 3),
+                          ", $R^2_{aj}$ = ",
+                          round(s2$adj.r.squared, 3),
+                          ", $F$(", s2$fstatistic[2], ", ",
+                          s2$fstatistic[3], ") = ",
+                          round(s2$fstatistic[1], 2))) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE)
+```
+
+El coeficiente estandarizado ($\beta$) permite comparar directamente la importancia relativa de cada dimensión. El predictor con mayor $|\beta|$ es el factor más influyente.
+
+## Regresión logística (Recomendar)
+
+```{r regresion-logistica}
+mod_recom <- glm(I3_bin ~ idx_producto + idx_servicio + idx_entorno,
+                 data = datos, family = binomial)
+```
+
+```{r reg-logist-print, echo=FALSE}
+s3 <- summary(mod_recom)
+
+coefs_s3 <- as.data.frame(s3$coefficients) %>%
+  tibble::rownames_to_column("Predictor") %>%
+  mutate(
+    Predictor = case_match(Predictor,
+      "(Intercept)"  ~ "Intercepto",
+      "idx_producto" ~ "Producto",
+      "idx_servicio" ~ "Servicio",
+      "idx_entorno"  ~ "Entorno"),
+    OR = round(exp(Estimate), 3),
+    across(where(is.numeric), ~round(., 4))
+  )
+
+coefs_s3 %>%
+  mutate(`Pr(>|z|)` = ifelse(`Pr(>|z|)` < 0.001, "< .001",
+                              format(`Pr(>|z|)`, nsmall = 4))) %>%
+  select(Predictor, Estimate, `Std. Error`, `z value`, `Pr(>|z|)`, OR) %>%
+  kable(col.names = c("Predictor", "$b$", "$EE$", "$z$", "$p$", "$OR$"),
+        align    = "lccccc",
+        booktabs = TRUE,
+        escape   = FALSE,
+        row.names = FALSE,
+        caption  = paste0("Regresión logística --- Recomendar. ",
+                          "AIC = ", round(s3$aic, 1))) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE)
+```
+
+El Odds Ratio ($OR$) indica el cambio multiplicativo en la probabilidad de recomendar por cada unidad de aumento en el predictor, manteniendo los demás constantes. Un $OR > 1$ indica efecto positivo.
+
+## Comparación de la importancia relativa
+
+```{r comparar-betas, fig.cap="Coeficientes estandarizados ($\\beta$) de cada dimensión sobre Satisfacción y Revisitar.", fig.height=3.5}
+tab_betas <- data.frame(
+  Dimension = rep(c("Producto", "Servicio", "Entorno"), 2),
+  VD        = c(rep("Satisfacción", 3), rep("Revisitar", 3)),
+  Beta      = c(betas_s, betas_r)
+)
+
+ggplot(tab_betas, aes(x = reorder(Dimension, abs(Beta)),
+                       y = Beta, fill = VD)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6, alpha = 0.85) +
+  geom_hline(yintercept = 0, linewidth = 0.3) +
+  coord_flip() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = NULL, y = expression(beta~estandarizado), fill = "Variable\ndependiente") +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom")
+```
+
+\newpage
+
+# Matriz de correlaciones de Spearman (Objetivo 5)
+
+Para evaluar la relación entre la percepción sensorial de la experiencia gastronómica y la toma de decisiones del comensal.
+
+```{r correlaciones}
+vars_corr <- c("idx_producto", "idx_servicio", "idx_entorno",
+               "idx_satisfaccion", "idx_revisitar", "I3_bin")
+
+etiq_corr <- c("Producto", "Servicio", "Entorno",
+               "Satisfacción", "Revisitar", "Recomendar")
+
+mat_corr <- cor(datos[, vars_corr], method = "spearman")
+rownames(mat_corr) <- etiq_corr
+colnames(mat_corr) <- etiq_corr
+
+# p-valores
+mat_p <- matrix(NA, 6, 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) {
+      test_c <- cor.test(datos[[vars_corr[i]]], datos[[vars_corr[j]]],
+                          method = "spearman", exact = FALSE)
+      mat_p[i, j] <- test_c$p.value
+    }
+  }
+}
+```
+
+```{r corr-print, echo=FALSE}
+# Formatear: parte inferior con coeficientes, diagonal vacía
+mat_fmt <- matrix("", 6, 6)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i == j) {
+      mat_fmt[i, j] <- "---"
+    } else {
+      val <- round(mat_corr[i, j], 3)
+      star <- ifelse(!is.na(mat_p[i, j]) & mat_p[i, j] < 0.001, "***",
+              ifelse(!is.na(mat_p[i, j]) & mat_p[i, j] < 0.01, "**",
+              ifelse(!is.na(mat_p[i, j]) & mat_p[i, j] < 0.05, "*", "")))
+      mat_fmt[i, j] <- paste0(format(val, nsmall = 3), star)
+    }
+  }
+}
+
+rownames(mat_fmt) <- etiq_corr
+colnames(mat_fmt) <- etiq_corr
+
+as.data.frame(mat_fmt) %>%
+  tibble::rownames_to_column(" ") %>%
+  kable(align    = c("l", rep("c", 6)),
+        booktabs = TRUE) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = FALSE,
+                font_size = 9) %>%
+  footnote(general = "* p < .05, ** p < .01, *** p < .001 (Spearman).",
+           general_title = "",
+           footnote_as_chunk = TRUE,
+           escape = FALSE)
+```
+
+\newpage
+
+# Resumen de resultados por hipótesis
+
+```{r resumen-final, echo=FALSE}
+tibble::tribble(
+  ~Hipotesis, ~Resultado,
+  "General: La variación en los elementos de la experiencia gastronómica influye en la toma de decisiones del comensal.",
+  "Kruskal-Wallis significativo para Satisfacción y Revisitar; Chi-cuadrado significativo para Recomendar. Se acepta $H_1$.",
+
+  "Específica 1: La variación en la calidad del producto influye en la toma de decisiones.",
+  "Comparación Base vs. Producto degradado en Dunn y Fisher. Ver tabla de post-hoc.",
+
+  "Específica 2: La variación en la calidad del servicio afecta la toma de decisiones.",
+  "Comparación Base vs. Servicio degradado en Dunn y Fisher. Ver tabla de post-hoc.",
+
+  "Específica 3: La variación en el entorno influye en la toma de decisiones.",
+  "Comparación Base vs. Entorno degradado en Dunn y Fisher. Ver tabla de post-hoc.",
+
+  "Específica 4: Factor sensorial más influyente.",
+  "El predictor con mayor $|\\beta|$ en la regresión es el más influyente. Ver gráfico de coeficientes.",
+
+  "Específica 5: Relación entre percepción sensorial y toma de decisiones.",
+  "Correlaciones de Spearman significativas. Ver matriz de correlaciones."
+) %>%
+  kable(col.names = c("Hipótesis", "Resultado"),
+        booktabs = TRUE,
+        escape   = FALSE) %>%
+  kable_styling(latex_options = c("hold_position"),
+                full_width = TRUE,
+                font_size = 9) %>%
+  column_spec(1, width = "6cm") %>%
+  column_spec(2, width = "10cm")
+```
+
+Los resultados detallados (estadísticos exactos, $p$-valores y tamaños del efecto) se encuentran en las tablas correspondientes de cada sección anterior.
