@@ -1,5 +1,5 @@
 ---
-title: "Preparación de Datos"
+title: "Preparación de los Datos"
 subtitle: |
   Impacto de los factores de la experiencia gastronómica
   en la toma de decisiones del comensal
